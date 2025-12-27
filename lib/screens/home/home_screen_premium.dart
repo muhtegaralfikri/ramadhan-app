@@ -137,31 +137,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(DateTime.now()),
-                              style: AppTextStyles.labelMedium.copyWith(
-                                color: AppColors.gold,
-                                letterSpacing: 1.0,
-                                fontSize: 12, // Smaller font to prevent overflow
-                              ),
-                            ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.2),
-                            const SizedBox(height: AppDimensions.spacingXS),
-                            Text(
-                              widget.isAdmin ? 'Halo, Admin 👋' : 'Assalamu\'alaikum 🤲',
-                              style: AppTextStyles.headlineSmall.copyWith(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.bold,
-                                height: 1.1, // Reduce height to prevent overflow
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
-                          ],
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(DateTime.now()),
+                            style: AppTextStyles.labelMedium.copyWith(
+                              color: AppColors.gold,
+                              letterSpacing: 1.0,
+                            ),
+                          ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.2),
+                          const SizedBox(height: AppDimensions.spacingS),
+                          Text(
+                            widget.isAdmin ? 'Halo, Admin 👋' : 'Assalamu\'alaikum 🤲',
+                            style: AppTextStyles.displaySmall.copyWith(
+                              color: AppColors.white,
+                            ),
+                          ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
+                        ],
                       ),
                       _buildProfileButton(),
                     ],
@@ -235,24 +228,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatItem(String value, String label, IconData icon) {
-    return Flexible(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: AppColors.white, size: 20),
-          const SizedBox(height: AppDimensions.spacingS),
-          Text(
-            value,
-            style: AppTextStyles.headlineMedium.copyWith(
-              color: AppColors.white,
-              height: 1,
-              fontSize: 24,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.white, size: 24),
+        const SizedBox(height: AppDimensions.spacingS),
+        Text(
+          value,
+          style: AppTextStyles.displaySmall.copyWith(
+            color: AppColors.white,
+            height: 1,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: AppDimensions.spacingXS),
+        Text(
+          label,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.white.withValues(alpha: 0.9),
+          ),
+        ),
+      ],
     );
   }
 
@@ -265,11 +259,12 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: AppDimensions.spacingM,
         crossAxisSpacing: AppDimensions.spacingM,
-        childAspectRatio: 0.9,
+        childAspectRatio: 1.1,
         children: [
           if (widget.isAdmin)
             _buildFeatureCard(
               'Pencatatan Zakat',
+              'Kelola data zakat jamaah',
               Icons.payments_rounded,
               AppColors.primary,
               () => _navigateTo(const ZakatListScreen(isAdmin: true)),
@@ -277,6 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           _buildFeatureCard(
             'Total Zakat',
+            'Lihat total zakat diterima',
             Icons.account_balance_wallet_rounded,
             AppColors.teal,
             () => _navigateTo(const ZakatListScreen(isAdmin: false)),
@@ -284,6 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           _buildFeatureCard(
             'Tracker Puasa',
+            'Track puasa Ramadan',
             Icons.fact_check_rounded,
             AppColors.secondary,
             () => _navigateTo(const PuasaScreen()),
@@ -291,6 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           _buildFeatureCard(
             'Jadwal Sholat',
+            'Jadwal 5 waktu',
             Icons.schedule_rounded,
             AppColors.info,
             () => _navigateTo(const JadwalScreen()),
@@ -298,6 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           _buildFeatureCard(
             'Menu Buka',
+            'Info takjil',
             Icons.lunch_dining_rounded,
             AppColors.indigo,
             () => _navigateTo(const MenuScreen()),
@@ -305,6 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           _buildFeatureCard(
             'Profil Masjid',
+            'Info lengkap masjid',
             Icons.mosque_rounded,
             AppColors.goldDark,
             () {},
@@ -317,6 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildFeatureCard(
     String title,
+    String subtitle,
     IconData icon,
     Color color,
     VoidCallback onTap, {
@@ -348,24 +349,29 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: AppPadding.allM,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(AppDimensions.spacingS),
+                    padding: const EdgeInsets.all(AppDimensions.spacingM),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.allS,
+                      borderRadius: AppRadius.allM,
                     ),
-                    child: Icon(icon, color: color, size: 24),
+                    child: Icon(icon, color: color, size: 28),
                   ),
-                  const SizedBox(height: AppDimensions.spacingS),
+                  const Spacer(),
                   Text(
                     title,
                     style: AppTextStyles.titleSmall.copyWith(
                       color: AppColors.textPrimary,
-                      fontSize: 14,
                     ),
-                    maxLines: 1,
+                  ),
+                  const SizedBox(height: AppDimensions.spacingXS),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

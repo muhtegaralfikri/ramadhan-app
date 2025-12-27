@@ -262,8 +262,9 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
         borderRadius: AppRadius.allM,
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
+          Text(label, style: AppTextStyles.labelSmall),
+          const SizedBox(height: AppDimensions.spacingS),
           Text(
             _currencyFormatter.format(amount),
             style: AppTextStyles.titleMedium.copyWith(
@@ -322,7 +323,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppDimensions.spacingS),
+            padding: const EdgeInsets.all(AppDimensions.spacingM),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: zakat.type == 'maal'
@@ -331,46 +332,35 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: AppRadius.allS,
+              borderRadius: AppRadius.allM,
             ),
             child: Icon(
               zakat.type == 'maal' ? Icons.monetization_on_rounded : Icons.rice_bowl_rounded,
               color: AppColors.white,
-              size: 24,
+              size: 28,
             ),
           ),
-          const SizedBox(width: AppDimensions.spacingS),
+          const SizedBox(width: AppDimensions.spacingM),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   zakat.type == 'maal' ? 'Zakat Maal' : 'Zakat Fitrah',
-                  style: AppTextStyles.titleSmall.copyWith(
-                    fontSize: 14,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.titleSmall,
                 ),
                 const SizedBox(height: AppDimensions.spacingXS),
                 Text(
                   _currencyFormatter.format(zakat.amount),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
-                    fontSize: 12,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   _formatDate(zakat.date),
                   style: AppTextStyles.overline.copyWith(
                     color: AppColors.textHint,
-                    fontSize: 10,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 if (zakat.note != null && zakat.note!.isNotEmpty)
                   Padding(
@@ -379,7 +369,6 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                       zakat.note!,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
-                        fontSize: 11,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

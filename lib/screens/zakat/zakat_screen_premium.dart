@@ -390,26 +390,36 @@ class _ZakatScreenState extends State<ZakatScreen> {
 
   Widget _buildResultCard() {
     return Container(
-      padding: AppPadding.allM,
+      padding: AppPadding.allL,
       decoration: BoxDecoration(
         gradient: AppTheme.goldGradient,
         borderRadius: AppRadius.allL,
         boxShadow: AppTheme.cardShadowL,
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_rounded, color: AppColors.white),
+              const SizedBox(width: AppDimensions.spacingS),
+              Text(
+                'Zakat yang Harus Dibayar',
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.white,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.spacingM),
           Text(
             _currencyFormatter.format(_calculatedZakat),
-            style: AppTextStyles.headlineLarge.copyWith(
+            style: AppTextStyles.displayMedium.copyWith(
               color: AppColors.white,
               fontWeight: FontWeight.w800,
-              fontSize: 28,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ).animate().scale(),
-          const SizedBox(height: AppDimensions.spacingS),
+          const SizedBox(height: AppDimensions.spacingL),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -418,13 +428,10 @@ class _ZakatScreenState extends State<ZakatScreen> {
                   _isCalculatorMode = false;
                 });
               },
-              icon: const Icon(Icons.check_rounded, size: 20),
-              label: Text(
-                'Gunakan Nilai Ini',
-                style: AppTextStyles.buttonPrimary.copyWith(fontSize: 14),
-              ),
+              icon: const Icon(Icons.check_rounded),
+              label: const Text('Gunakan Nilai Ini'),
               style: OutlinedButton.styleFrom(
-                padding: AppPadding.vS,
+                padding: AppPadding.vM,
                 foregroundColor: AppColors.white,
                 side: const BorderSide(color: AppColors.white, width: 2),
                 shape: RoundedRectangleBorder(
@@ -446,7 +453,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
         _buildDateCard(),
         const SizedBox(height: AppDimensions.spacingM),
         _buildNoteCard(),
-        const SizedBox(height: AppDimensions.spacingL),
+        const SizedBox(height: AppDimensions.spacingXL),
         _buildSaveButton(),
       ],
     );
@@ -454,7 +461,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
 
   Widget _buildAmountCard() {
     return Container(
-      padding: AppPadding.allM,
+      padding: AppPadding.allL,
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.allL,
@@ -489,7 +496,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
 
   Widget _buildDateCard() {
     return Container(
-      padding: AppPadding.allM,
+      padding: AppPadding.allL,
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.allL,
@@ -506,13 +513,11 @@ class _ZakatScreenState extends State<ZakatScreen> {
             ),
             filled: true,
             fillColor: AppColors.surfaceVariant,
-            prefixIcon: Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
+            prefixIcon: Icon(Icons.calendar_today_rounded, color: AppColors.primary),
           ),
           child: Text(
             DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(_selectedDate),
-            style: AppTextStyles.bodyLarge.copyWith(fontSize: 14),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodyLarge,
           ),
         ),
       ),
@@ -521,7 +526,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
 
   Widget _buildNoteCard() {
     return Container(
-      padding: AppPadding.allM,
+      padding: AppPadding.allL,
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.allL,
@@ -529,7 +534,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
       ),
       child: TextFormField(
         controller: _noteController,
-        maxLines: 3,
+        maxLines: 4,
         decoration: InputDecoration(
           labelText: 'Catatan (Opsional)',
           hintText: 'Masukkan catatan tambahan',
@@ -538,7 +543,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
           ),
           filled: true,
           fillColor: AppColors.surfaceVariant,
-          prefixIcon: Icon(Icons.note_rounded, color: AppColors.primary, size: 20),
+          prefixIcon: Icon(Icons.note_rounded, color: AppColors.primary),
         ),
       ),
     ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2);
@@ -551,19 +556,19 @@ class _ZakatScreenState extends State<ZakatScreen> {
         onPressed: _isLoading ? null : _saveZakat,
         icon: _isLoading
             ? const SizedBox(
-                width: 16,
-                height: 16,
+                width: 20,
+                height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: AppColors.white,
                 ),
               )
-            : const Icon(Icons.save_rounded, color: AppColors.white, size: 20),
+            : const Icon(Icons.save_rounded, color: AppColors.white),
         label: _isLoading
-            ? Text('Menyimpan...', style: AppTextStyles.buttonPrimary.copyWith(fontSize: 14))
-            : Text('Simpan Data Zakat', style: AppTextStyles.buttonPrimary.copyWith(fontSize: 14)),
+            ? Text('Menyimpan...', style: AppTextStyles.buttonPrimary)
+            : Text('Simpan Data Zakat', style: AppTextStyles.buttonPrimary),
         style: ElevatedButton.styleFrom(
-          padding: AppPadding.vM,
+          padding: AppPadding.vL,
           backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: AppRadius.allS,

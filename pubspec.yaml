@@ -53,6 +53,24 @@ dependencies:
   # HTTP requests
   http: ^1.2.2
 
+  # Premium UI & Animations
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.2
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10
+
+  # Charts & Graphs
+  fl_chart: ^0.68.0
+
+  # Pull to refresh
+  pull_to_refresh: ^2.0.0
+
+  # Shimmer loading effect
+  shimmer: ^3.0.0
+
+  # Glassmorphism
+  glassmorphism: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -74,6 +92,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Assets
+  assets:
+    - assets/images/
+    - assets/animations/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
