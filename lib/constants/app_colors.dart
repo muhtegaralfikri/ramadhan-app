@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Primary Colors - Premium Green
-  static const Color primary = Color(0xFF0D5C38);
-  static const Color primaryDark = Color(0xFF073B22);
-  static const Color primaryLight = Color(0xFF1E8A54);
+  static const Color primary = Color(0xFF43A047); // Colors.green.shade600
+  static const Color primaryDark = Color(0xFF2E7D32); // Colors.green.shade800
+  static const Color primaryLight = Color(0xFF4CAF50); // Colors.green
   static const Color primarySurface = Color(0xFFE8F5EC);
 
   // Accent Colors - Gold for premium feel
@@ -38,8 +38,8 @@ class AppColors {
 
   // Gradient Colors
   static const List<Color> primaryGradient = [
-    Color(0xFF0D5C38),
-    Color(0xFF2E7D32),
+    Color(0xFF43A047),
+    Color(0xFF4CAF50),
   ];
   static const List<Color> goldGradient = [
     Color(0xFFD4AF37),

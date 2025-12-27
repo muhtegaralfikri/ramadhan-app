@@ -118,7 +118,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
 
   Widget _buildSliverAppBar(double totalZakat) {
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 170,
       floating: false,
       pinned: true,
       elevation: 0,
@@ -174,10 +174,10 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
         ),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
               children: [
                 Text('Distribusi Zakat', style: AppTextStyles.titleMedium),
+                const SizedBox(height: AppDimensions.spacingL),
                 _buildChartLegend(),
               ],
             ),
@@ -213,7 +213,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                 ),
               ),
             ).animate().fadeIn(delay: 300.ms).scale(),
-            const SizedBox(height: AppDimensions.spacingM),
+            const SizedBox(height: AppDimensions.spacingXL),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -229,6 +229,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
 
   Widget _buildChartLegend() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(AppColors.primary, 'Maal'),
         const SizedBox(width: AppDimensions.spacingM),
@@ -307,6 +308,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
             return _buildZakatCard(zakat, index);
           },
         ),
+        const SizedBox(height: 80), // Add padding for FAB
       ],
     );
   }
@@ -323,7 +325,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppDimensions.spacingM),
+            padding: const EdgeInsets.all(AppDimensions.spacingS),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: zakat.type == 'maal'
@@ -332,56 +334,59 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: AppRadius.allM,
+              borderRadius: AppRadius.allS,
             ),
             child: Icon(
               zakat.type == 'maal' ? Icons.monetization_on_rounded : Icons.rice_bowl_rounded,
               color: AppColors.white,
-              size: 28,
+              size: 24,
             ),
           ),
           const SizedBox(width: AppDimensions.spacingM),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  zakat.type == 'maal' ? 'Zakat Maal' : 'Zakat Fitrah',
-                  style: AppTextStyles.titleSmall,
+                  (zakat.note != null && zakat.note!.isNotEmpty) ? zakat.note! : (zakat.type == 'maal' ? 'Zakat Maal' : 'Zakat Fitrah'),
+                  style: AppTextStyles.titleSmall.copyWith(fontSize: 14),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: AppDimensions.spacingXS),
-                Text(
-                  _currencyFormatter.format(zakat.amount),
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                const SizedBox(height: 4),
                 Text(
                   _formatDate(zakat.date),
-                  style: AppTextStyles.overline.copyWith(
-                    color: AppColors.textHint,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
                   ),
                 ),
-                if (zakat.note != null && zakat.note!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppDimensions.spacingXS),
-                    child: Text(
-                      zakat.note!,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
               ],
             ),
           ),
-          if (widget.isAdmin)
-            IconButton(
-              icon: Icon(Icons.delete_outline_rounded, color: AppColors.error),
-              onPressed: () => _showDeleteDialog(zakat.id),
-            ),
+          const SizedBox(width: AppDimensions.spacingM),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _currencyFormatter.format(zakat.amount),
+                style: AppTextStyles.titleSmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              if (widget.isAdmin)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: InkWell(
+                    onTap: () => _showDeleteDialog(zakat.id),
+                    child: Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.error),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     ).animate().fadeIn(delay: (500 + index * 50).ms).slideX(begin: 0.1);
