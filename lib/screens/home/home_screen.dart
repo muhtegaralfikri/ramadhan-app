@@ -8,7 +8,6 @@ import '../zakat/zakat_list_screen.dart';
 import '../auth/login_screen.dart';
 import '../jadwal/jadwal_screen.dart';
 import '../menu_buka/menu_screen.dart';
-import '../puasa/puasa_screen.dart';
 import '../../services/auth_service.dart';
 import 'package:intl/intl.dart';
 
@@ -30,6 +29,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
+  late bool _isAdmin;
+
+  @override
+  void initState() {
+    super.initState();
+    _isAdmin = widget.isAdmin;
+    
+    // Listen to auth state changes
+    _authService.authStateChanges.listen((data) {
+      if (mounted) {
+        setState(() {
+          _isAdmin = data.session != null;
+        });
+      }
+    });
+  }
 
   Future<void> _handleLogin() async {
     final result = await Navigator.push(
@@ -52,6 +67,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
     if (result == true) {
+      setState(() {
+        _isAdmin = true;
+      });
       widget.onLoginSuccess();
     }
   }
@@ -151,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.2),
                             const SizedBox(height: AppDimensions.spacingXS),
                             Text(
-                              widget.isAdmin ? 'Halo, Admin 👋' : 'Assalamu\'alaikum 🤲',
+                              _isAdmin ? 'Halo, Admin 👋' : 'Assalamu\'alaikum 🤲',
                               style: AppTextStyles.headlineSmall.copyWith(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.bold,
@@ -177,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProfileButton() {
     return GestureDetector(
-      onTap: widget.isAdmin ? _handleLogout : _handleLogin,
+      onTap: _isAdmin ? _handleLogout : _handleLogin,
       child: Container(
         padding: const EdgeInsets.all(AppDimensions.spacingS),
         decoration: BoxDecoration(
@@ -186,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
           border: Border.all(color: AppColors.white.withValues(alpha: 0.3)),
         ),
         child: Icon(
-          widget.isAdmin ? Icons.logout_rounded : Icons.login_rounded,
+          _isAdmin ? Icons.logout_rounded : Icons.login_rounded,
           color: AppColors.white,
           size: 28,
         ),
@@ -198,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: AppPadding.allL,
       child: Text(
-        widget.isAdmin
+        _isAdmin
             ? 'Kelola aktivitas masjid dengan transparansi dan akuntabilitas'
             : 'Pantau aktivitas dan transparansi keuangan masjid',
         style: AppTextStyles.bodyLarge.copyWith(
@@ -267,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisSpacing: AppDimensions.spacingM,
         childAspectRatio: 1.3,
         children: [
-          if (widget.isAdmin)
+          if (_isAdmin)
             _buildFeatureCard(
               'Pencatatan Zakat',
               Icons.payments_rounded,
@@ -281,13 +299,6 @@ class _HomeScreenState extends State<HomeScreen> {
             AppColors.teal,
             () => _navigateTo(const ZakatListScreen(isAdmin: false)),
             delay: 700,
-          ),
-          _buildFeatureCard(
-            'Tracker Puasa',
-            Icons.fact_check_rounded,
-            AppColors.secondary,
-            () => _navigateTo(const PuasaScreen()),
-            delay: 800,
           ),
           _buildFeatureCard(
             'Jadwal Sholat',
