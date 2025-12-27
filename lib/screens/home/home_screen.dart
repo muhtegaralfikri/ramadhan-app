@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 180,
+      expandedHeight: 130,
       floating: false,
       pinned: true,
       elevation: 0,
@@ -265,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: AppDimensions.spacingM,
         crossAxisSpacing: AppDimensions.spacingM,
-        childAspectRatio: 0.9,
+        childAspectRatio: 1.3,
         children: [
           if (widget.isAdmin)
             _buildFeatureCard(
@@ -345,18 +345,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Padding(
-              padding: AppPadding.allM,
+              padding: AppPadding.allS,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(AppDimensions.spacingS),
+                    padding: const EdgeInsets.all(AppDimensions.spacingXS),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
                       borderRadius: AppRadius.allS,
                     ),
-                    child: Icon(icon, color: color, size: 24),
+                    child: Icon(icon, color: color, size: 20),
                   ),
                   const SizedBox(height: AppDimensions.spacingS),
                   Text(
