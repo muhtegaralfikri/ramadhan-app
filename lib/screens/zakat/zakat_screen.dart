@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/zakat.dart';
+import '../../services/zakat_service.dart';
 
 class ZakatScreen extends StatefulWidget {
   const ZakatScreen({super.key});
@@ -15,10 +16,12 @@ class _ZakatScreenState extends State<ZakatScreen> {
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _calculatorAmountController = TextEditingController();
   final TextEditingController _ricePriceController = TextEditingController();
+  final ZakatService _zakatService = ZakatService();
   String _selectedType = 'maal';
   double _calculatedZakat = 0;
   bool _isCalculatorMode = false;
   DateTime _selectedDate = DateTime.now();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -64,8 +67,12 @@ class _ZakatScreenState extends State<ZakatScreen> {
     }
   }
 
-  void _saveZakat() {
+  void _saveZakat() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
       final zakat = Zakat(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         amount: double.parse(_amountController.text),
@@ -74,11 +81,31 @@ class _ZakatScreenState extends State<ZakatScreen> {
         note: _noteController.text.isEmpty ? null : _noteController.text,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data zakat berhasil disimpan!')),
-      );
-
-      Navigator.pop(context, zakat);
+      try {
+        await _zakatService.addZakat(zakat);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Data zakat berhasil disimpan!')),
+          );
+          Navigator.pop(context, true); // Return true to indicate data added
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menyimpan: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 
@@ -300,9 +327,20 @@ class _ZakatScreenState extends State<ZakatScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: _saveZakat,
-                  icon: const Icon(Icons.save),
-                  label: const Text('Simpan Data Zakat'),
+                  onPressed: _isLoading ? null : _saveZakat,
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.save),
+                  label: _isLoading
+                      ? const Text('Menyimpan...')
+                      : const Text('Simpan Data Zakat'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(16),
                     backgroundColor: Colors.green,

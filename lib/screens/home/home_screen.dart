@@ -1,43 +1,91 @@
 import 'package:flutter/material.dart';
 import '../zakat/zakat_list_screen.dart';
-import '../puasa/puasa_screen.dart';
+import '../auth/login_screen.dart';
 import '../jadwal/jadwal_screen.dart';
 import '../menu_buka/menu_screen.dart';
-import '../../models/zakat.dart';
+import '../../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool isAdmin;
+  final VoidCallback onLoginSuccess;
+  final VoidCallback onLogout;
+
+  const HomeScreen({
+    super.key,
+    required this.isAdmin,
+    required this.onLoginSuccess,
+    required this.onLogout,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Zakat> _zakatList = [];
+  final AuthService _authService = AuthService();
 
-  void _handleZakatSaved(Zakat zakat) {
-    setState(() {
-      _zakatList.add(zakat);
-    });
+  Future<void> _handleLogin() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+    if (result == true) {
+      widget.onLoginSuccess();
+    }
   }
 
-  void _handleZakatEdited(Zakat zakat) {
-    // Implement edit logic jika needed
-  }
-
-  void _handleZakatDeleted(String id) {
-    setState(() {
-      _zakatList.removeWhere((z) => z.id == id);
-    });
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Apakah Anda yakin ingin logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed == true) {
+      await _authService.logout();
+      widget.onLogout();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil logout')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ramadan App', style: TextStyle(color: Colors.white)),
+        title: Text(widget.isAdmin ? 'Dashboard Admin' : 'Masjid App', style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.green.shade600,
         elevation: 0,
+        actions: [
+          if (widget.isAdmin)
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white),
+              onPressed: _handleLogout,
+              tooltip: 'Logout',
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+              onPressed: _handleLogin,
+              tooltip: 'Login Admin',
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -54,41 +102,44 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 30.0),
+                  padding: const EdgeInsets.only(bottom: 30.0),
                   child: Text(
-                    'Selamat datang di Aplikasi Ramadan',
+                    widget.isAdmin
+                        ? 'Selamat datang, Admin'
+                        : 'Aplikasi Transparansi Masjid',
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ),
               ),
-              _buildMenuCard(
-                context,
-                'Pencatatan Zakat',
-                'Catat zakat jamaah masjid',
-                Icons.monetization_on,
-                Colors.green,
-                () => Navigator.push(
+              if (widget.isAdmin) ...[
+                _buildMenuCard(
                   context,
-                  MaterialPageRoute(builder: (context) => ZakatListScreen(
-                    zakatList: _zakatList,
-                    onEdit: _handleZakatEdited,
-                    onDelete: _handleZakatDeleted,
-                    onAdd: _handleZakatSaved,
-                  )),
+                  'Pencatatan Zakat',
+                  'Kelola data zakat jamaah',
+                  Icons.monetization_on,
+                  Colors.green,
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ZakatListScreen(
+                      isAdmin: true,
+                    )),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
               _buildMenuCard(
                 context,
-                'Puasa Tracker',
-                'Track puasa Ramadan dan sunnah',
-                Icons.calendar_today,
-                Colors.orange,
+                'Total Zakat',
+                'Lihat total zakat diterima',
+                Icons.account_balance_wallet,
+                Colors.teal,
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PuasaScreen()),
+                  MaterialPageRoute(builder: (context) => const ZakatListScreen(
+                    isAdmin: false,
+                  )),
                 ),
               ),
               const SizedBox(height: 16),
@@ -115,10 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => const MenuScreen()),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -164,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: Colors.grey.shade600,
                       ),
                     ),
                   ],

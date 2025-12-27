@@ -15,19 +15,19 @@ class Zakat {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      // 'id': id, // ID tidak perlu dikirim (auto-generate oleh database)
       'amount': amount,
       'type': type,
-      'date': date.toIso8601String(),
+      'date': "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}", // Format: YYYY-MM-DD
       'note': note,
     };
   }
 
   factory Zakat.fromJson(Map<String, dynamic> json) {
     return Zakat(
-      id: json['id'],
-      amount: json['amount'].toDouble(),
-      type: json['type'],
+      id: json['id']?.toString() ?? '', // Supabase ID is integer, convert to string
+      amount: (json['amount'] as num).toDouble(),
+      type: json['type'] ?? 'maal',
       date: DateTime.parse(json['date']),
       note: json['note'],
     );
