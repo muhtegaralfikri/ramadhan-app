@@ -24,6 +24,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
       appBar: AppBar(
         title: const Text('Jadwal Sholat', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green.shade600,
+        foregroundColor: Colors.white, // Back button putih
         elevation: 0,
       ),
       body: Column(

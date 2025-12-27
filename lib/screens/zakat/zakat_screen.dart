@@ -118,6 +118,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green.shade600,
+        foregroundColor: Colors.white, // Back button icon putih
         elevation: 0,
         actions: [
           IconButton(

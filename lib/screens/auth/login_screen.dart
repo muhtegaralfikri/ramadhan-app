@@ -65,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text('Login Admin', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green.shade600,
+        foregroundColor: Colors.white, // Back button putih
         elevation: 0,
       ),
       body: SafeArea(

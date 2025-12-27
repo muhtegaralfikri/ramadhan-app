@@ -71,6 +71,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green.shade600,
+        foregroundColor: Colors.white, // Ini membuat tombol back dan icon lainnya putih
         elevation: 0,
       ),
       floatingActionButton: widget.isAdmin

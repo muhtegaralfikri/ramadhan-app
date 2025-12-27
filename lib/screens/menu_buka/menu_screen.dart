@@ -48,6 +48,7 @@ class MenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Menu Buka Puasa', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green.shade600,
+        foregroundColor: Colors.white, // Back button putih
         elevation: 0,
       ),
       body: ListView.builder(
