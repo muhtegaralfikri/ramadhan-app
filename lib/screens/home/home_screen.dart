@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
-import '../zakat/zakat_screen.dart';
+import '../zakat/zakat_list_screen.dart';
 import '../puasa/puasa_screen.dart';
 import '../jadwal/jadwal_screen.dart';
 import '../menu_buka/menu_screen.dart';
+import '../../models/zakat.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final List<Zakat> _zakatList = [];
+
+  void _handleZakatSaved(Zakat zakat) {
+    setState(() {
+      _zakatList.add(zakat);
+    });
+  }
+
+  void _handleZakatEdited(Zakat zakat) {
+    // Implement edit logic jika needed
+  }
+
+  void _handleZakatDeleted(String id) {
+    setState(() {
+      _zakatList.removeWhere((z) => z.id == id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +65,18 @@ class HomeScreen extends StatelessWidget {
               ),
               _buildMenuCard(
                 context,
-                'Zakat Calculator',
-                'Hitung zakat maal dan fitrah',
+                'Pencatatan Zakat',
+                'Catat zakat jamaah masjid',
                 Icons.monetization_on,
                 Colors.green,
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ZakatScreen()),
+                  MaterialPageRoute(builder: (context) => ZakatListScreen(
+                    zakatList: _zakatList,
+                    onEdit: _handleZakatEdited,
+                    onDelete: _handleZakatDeleted,
+                    onAdd: _handleZakatSaved,
+                  )),
                 ),
               ),
               const SizedBox(height: 16),
