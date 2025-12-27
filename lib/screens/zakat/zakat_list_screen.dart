@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/zakat.dart';
 import '../../services/zakat_service.dart';
 import 'zakat_screen.dart';
@@ -19,6 +20,13 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
   final ZakatService _zakatService = ZakatService();
   List<Zakat> _zakatList = [];
   bool _isLoading = true;
+  
+  // Formatter untuk Rupiah
+  final _currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0, // Tampilkan bilangan bulat (200.000, bukan 200.000,00)
+  );
 
   @override
   void initState() {
@@ -109,7 +117,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                         Divider(color: Colors.grey.shade300),
                         const SizedBox(height: 8),
                         Text(
-                          'Total: Rp ${(totalMaal + totalFitrah).toStringAsFixed(2)}',
+                          _currencyFormatter.format(totalMaal + totalFitrah),
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -159,7 +167,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Rp ${amount.toStringAsFixed(2)}',
+          _currencyFormatter.format(amount),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -188,7 +196,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Rp ${zakat.amount.toStringAsFixed(2)}'),
+            Text(_currencyFormatter.format(zakat.amount)),
             Text(
               _formatDate(zakat.date),
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
