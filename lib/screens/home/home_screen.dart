@@ -104,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Berhasil logout', style: AppTextStyles.bodyMedium),
-            backgroundColor: AppColors.darkGrey,
+            content: Text('Berhasil logout', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white)),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -283,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: AppDimensions.spacingM,
         crossAxisSpacing: AppDimensions.spacingM,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.7,
         children: [
           if (_isAdmin)
             _buildFeatureCard(
@@ -355,31 +355,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: AppPadding.allS,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppDimensions.spacingXS),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.allS,
+            Positioned.fill(
+              child: Padding(
+                padding: AppPadding.allS,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppDimensions.spacingXS),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: AppRadius.allS,
+                      ),
+                      child: Icon(icon, color: color, size: 20),
                     ),
-                    child: Icon(icon, color: color, size: 20),
-                  ),
-                  const SizedBox(height: AppDimensions.spacingS),
-                  Text(
-                    title,
-                    style: AppTextStyles.titleSmall.copyWith(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
+                    const Spacer(),
+                    Text(
+                      title,
+                      style: AppTextStyles.titleSmall.copyWith(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

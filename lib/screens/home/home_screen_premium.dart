@@ -104,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Berhasil logout', style: AppTextStyles.bodyMedium),
-            backgroundColor: AppColors.darkGrey,
+            content: Text('Berhasil logout', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white)),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: AppDimensions.spacingM,
         crossAxisSpacing: AppDimensions.spacingM,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.7,
         children: [
           if (_isAdmin)
             _buildFeatureCard(
