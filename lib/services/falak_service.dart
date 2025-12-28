@@ -184,11 +184,30 @@ class FalakService {
     final targetSunAzimuth = (qiblaDirection + 180) % 360;
 
     // Search through the day in 1-minute intervals
-    List<Map<String, dynamic>> results = [];
+    // Start from 7:00 to 17:00 (daylight hours)
+    double? bestDiff;
+    Map<String, dynamic>? bestResult;
     
-    for (int hour = 6; hour < 18; hour++) {
+    for (int hour = 7; hour < 17; hour++) {
       for (int minute = 0; minute < 60; minute++) {
         final testTime = DateTime(date.year, date.month, date.day, hour, minute);
+        
+        // Calculate sun position
+        final sunPos = calculateSunPosition(testTime);
+        final declination = sunPos['declination']! * math.pi / 180;
+        final eqTime = sunPos['equationOfTime']!;
+        
+        final localTime = hour + minute / 60;
+        final solarTime = localTime + eqTime / 60 + (longitude / 15) - timezoneOffset;
+        final hourAngle = (solarTime - 12) * 15 * math.pi / 180;
+        final latRad = latitude * math.pi / 180;
+        
+        // Check if sun is above horizon
+        final sinAlt = math.sin(latRad) * math.sin(declination) +
+            math.cos(latRad) * math.cos(declination) * math.cos(hourAngle);
+        
+        if (sinAlt <= 0.1) continue; // Skip if sun is too low
+        
         final sunAzimuth = calculateSunAzimuth(
           latitude: latitude,
           longitude: longitude,
@@ -196,22 +215,29 @@ class FalakService {
           timezoneOffset: timezoneOffset,
         );
 
-        // Check if sun azimuth is close to target (within 0.5 degrees)
-        final diff = (sunAzimuth - targetSunAzimuth).abs();
-        if (diff < 0.5 || (360 - diff) < 0.5) {
-          results.add({
+        // Calculate difference to target
+        double diff = (sunAzimuth - targetSunAzimuth).abs();
+        if (diff > 180) diff = 360 - diff;
+        
+        // Find the closest match
+        if (bestDiff == null || diff < bestDiff) {
+          bestDiff = diff;
+          bestResult = {
             'time': testTime,
             'sunAzimuth': sunAzimuth,
             'shadowDirection': calculateShadowDirection(sunAzimuth),
-          });
+            'difference': diff,
+          };
         }
       }
     }
 
-    if (results.isEmpty) return null;
+    // Only return if difference is less than 2 degrees
+    if (bestResult != null && bestDiff != null && bestDiff < 2.0) {
+      return bestResult;
+    }
     
-    // Return the first occurrence
-    return results.first;
+    return null;
   }
 
   /// Calculate all Falak data for a given position and time
@@ -231,27 +257,21 @@ class FalakService {
     final shadowDirection = calculateShadowDirection(sunAzimuth);
     final sunPos = calculateSunPosition(dateTime);
 
-    // Find Rashdul Qiblat time
-    final rashdulQiblat = findRashdulQiblat(
+    // Find validity period - when sun/shadow direction changes more than 5 degrees
+    final validUntil = _findValidityTime(
       latitude: latitude,
       longitude: longitude,
-      date: dateTime,
+      startTime: dateTime,
       timezoneOffset: timezoneOffset,
+      initialSunAzimuth: sunAzimuth,
+      maxDifference: 5.0, // 5 degrees tolerance
     );
 
-    // Calculate difference between shadow and qibla
-    double shadowQiblaDiff = (shadowDirection - qiblaDirection).abs();
-    if (shadowQiblaDiff > 180) shadowQiblaDiff = 360 - shadowQiblaDiff;
-
-    // Determine validity window (when shadow is within 5 degrees of qibla)
     String validityInfo = '';
-    if (shadowQiblaDiff <= 5) {
-      validityInfo = 'Bayangan mengarah ke Kiblat saat ini!';
-    } else if (rashdulQiblat != null) {
-      final rashdulTime = rashdulQiblat['time'] as DateTime;
-      validityInfo = 'Rashdul Qiblat pukul ${_formatTime(rashdulTime)}';
+    if (validUntil != null) {
+      validityInfo = 'Berlaku hingga pukul ${_formatTime(validUntil)}';
     } else {
-      validityInfo = 'Tidak ada Rashdul Qiblat hari ini';
+      validityInfo = 'Berlaku untuk waktu yang dipilih';
     }
 
     return {
@@ -260,10 +280,46 @@ class FalakService {
       'shadowDirection': shadowDirection,
       'declination': sunPos['declination'],
       'equationOfTime': sunPos['equationOfTime'],
-      'shadowQiblaDiff': shadowQiblaDiff,
       'validityInfo': validityInfo,
-      'rashdulQiblat': rashdulQiblat,
+      'validUntil': validUntil,
     };
+  }
+
+  /// Find when the calculation expires (sun moves more than maxDifference degrees)
+  static DateTime? _findValidityTime({
+    required double latitude,
+    required double longitude,
+    required DateTime startTime,
+    required double timezoneOffset,
+    required double initialSunAzimuth,
+    required double maxDifference,
+  }) {
+    // Check every 5 minutes for up to 20 minutes
+    for (int minutes = 5; minutes <= 20; minutes += 5) {
+      final checkTime = startTime.add(Duration(minutes: minutes));
+      
+      // Don't go past midnight or before sunrise/after sunset
+      if (checkTime.hour < 6 || checkTime.hour >= 18) {
+        return checkTime;
+      }
+      
+      final newSunAzimuth = calculateSunAzimuth(
+        latitude: latitude,
+        longitude: longitude,
+        dateTime: checkTime,
+        timezoneOffset: timezoneOffset,
+      );
+      
+      double diff = (newSunAzimuth - initialSunAzimuth).abs();
+      if (diff > 180) diff = 360 - diff;
+      
+      if (diff >= maxDifference) {
+        return checkTime;
+      }
+    }
+    
+    // Default to 20 minutes if within tolerance
+    return startTime.add(const Duration(minutes: 20));
   }
 
   static String _formatTime(DateTime time) {
