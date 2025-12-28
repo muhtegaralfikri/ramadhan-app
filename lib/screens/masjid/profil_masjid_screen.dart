@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_dimensions.dart';
-import '../../constants/app_text_styles.dart';
 import '../../theme/app_theme.dart';
 
 class ProfilMasjidScreen extends StatelessWidget {
@@ -11,6 +10,7 @@ class ProfilMasjidScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
           _buildSliverAppBar(context),
@@ -21,9 +21,9 @@ class ProfilMasjidScreen extends StatelessWidget {
                 _buildInfoSection(),
                 _buildFacilitiesSection(),
                 _buildContactSection(),
-                const SizedBox(height: AppDimensions.spacingXL),
+                const SizedBox(height: 40),
               ],
-            ).animate().fadeIn(duration: 400.ms),
+            ),
           ),
         ],
       ),
@@ -32,153 +32,252 @@ class ProfilMasjidScreen extends StatelessWidget {
 
   Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 220,
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: AppColors.goldDark,
-      leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.white.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
+      backgroundColor: AppColors.gold,
+      leading: Padding(
+        padding: const EdgeInsets.all(8),
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.white.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColors.white,
+            ),
           ),
-          child: const Icon(Icons.arrow_back_rounded, color: AppColors.white),
-        ),
-        onPressed: () => Navigator.pop(context),
+        ).animate().fadeIn(delay: 100.ms).scale(begin: const Offset(0.8, 0.8)),
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.goldDark,
-                AppColors.gold,
-              ],
-            ),
+            gradient: AppTheme.goldGradient,
           ),
-          child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Container(
-                  padding: const EdgeInsets.all(16),
+          child: Stack(
+            children: [
+              // Pattern overlay
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _MasjidPatternPainter(),
+                ),
+              ),
+              // Decorative circles
+              Positioned(
+                top: -60,
+                right: -60,
+                child: Container(
+                  width: 200,
+                  height: 200,
                   decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.mosque_rounded,
-                    size: 60,
-                    color: AppColors.white,
+                    color: AppColors.white.withValues(alpha: 0.08),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Positioned(
+                bottom: -40,
+                left: -40,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+              ),
+              // Content
+              SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 30),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.white.withValues(alpha: 0.3),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.goldDark.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.mosque_rounded,
+                          size: 50,
+                          color: AppColors.white,
+                        ),
+                      ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Profil Masjid',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
+                        ),
+                      ).animate().fadeIn(delay: 300.ms),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        title: Text(
-          'Profil Masjid',
-          style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
       ),
     );
   }
 
   Widget _buildMasjidHeader() {
-    return Container(
-      margin: AppPadding.allL,
-      padding: AppPadding.allL,
-      decoration: BoxDecoration(
-        gradient: AppTheme.goldGradient,
-        borderRadius: AppRadius.allL,
-        boxShadow: AppTheme.cardShadowL,
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Masjid Al-Ikhlas',
-            style: AppTextStyles.headlineMedium.copyWith(
-              color: AppColors.white,
-              fontWeight: FontWeight.bold,
-            ),
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.gold, AppColors.goldDark],
           ),
-          const SizedBox(height: AppDimensions.spacingS),
-          Text(
-            'Melayani Umat dengan Kasih Sayang',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.white.withValues(alpha: 0.9),
-              fontStyle: FontStyle.italic,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.gold.withValues(alpha: 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-          ),
-          const SizedBox(height: AppDimensions.spacingM),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimensions.spacingM,
-              vertical: AppDimensions.spacingXS,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.2),
-              borderRadius: AppRadius.allS,
-            ),
-            child: Text(
-              'Didirikan tahun 1985',
-              style: AppTextStyles.labelMedium.copyWith(
+          ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              'Masjid Al-Ikhlas',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
                 color: AppColors.white,
               ),
             ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2);
+            const SizedBox(height: 8),
+            Text(
+              'Melayani Umat dengan Kasih Sayang',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.white.withValues(alpha: 0.9),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.white.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.white),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Didirikan tahun 1985',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+    );
   }
 
   Widget _buildInfoSection() {
     return Padding(
-      padding: AppPadding.hL,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: AppDimensions.spacingM),
-          Text(
-            'Informasi Umum',
-            style: AppTextStyles.titleLarge.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingM),
+          _buildSectionTitle('Informasi Umum', Icons.info_rounded),
+          const SizedBox(height: 16),
           _buildInfoCard(
             icon: Icons.location_on_rounded,
             title: 'Alamat',
             content: 'Jl. Contoh No. 123, Kelurahan ABC\nKecamatan XYZ, Kota DEF 12345',
             color: AppColors.primary,
+            delay: 500,
           ),
-          const SizedBox(height: AppDimensions.spacingM),
+          const SizedBox(height: 12),
           _buildInfoCard(
             icon: Icons.people_rounded,
             title: 'Jamaah',
             content: 'Kapasitas: ±500 jamaah\nRata-rata sholat Jumat: ±350 jamaah',
             color: AppColors.teal,
+            delay: 600,
           ),
-          const SizedBox(height: AppDimensions.spacingM),
+          const SizedBox(height: 12),
           _buildInfoCard(
             icon: Icons.schedule_rounded,
             title: 'Jam Operasional',
             content: 'Buka 24 jam untuk ibadah\nSekretariat: 08:00 - 17:00 WIB',
             color: AppColors.info,
+            delay: 700,
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1);
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 24,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.gold, AppColors.goldDark],
+            ),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    ).animate().fadeIn(delay: 450.ms).slideX(begin: -0.1);
   }
 
   Widget _buildInfoCard({
@@ -186,41 +285,62 @@ class ProfilMasjidScreen extends StatelessWidget {
     required String title,
     required String content,
     required Color color,
+    required int delay,
   }) {
     return Container(
-      padding: AppPadding.allM,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: AppRadius.allL,
-        boxShadow: AppTheme.cardShadow,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: color.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppDimensions.spacingS),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: AppRadius.allS,
+              gradient: LinearGradient(
+                colors: [color, color.withValues(alpha: 0.7)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: AppColors.white, size: 22),
           ),
-          const SizedBox(width: AppDimensions.spacingM),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: AppTextStyles.titleSmall.copyWith(
-                    color: AppColors.textPrimary,
+                  style: const TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.spacingXS),
+                const SizedBox(height: 6),
                 Text(
                   content,
-                  style: AppTextStyles.bodyMedium.copyWith(
+                  style: TextStyle(
+                    fontSize: 13,
                     color: AppColors.textSecondary,
                     height: 1.5,
                   ),
@@ -230,122 +350,118 @@ class ProfilMasjidScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).animate().fadeIn(delay: delay.ms).slideX(begin: 0.05);
   }
 
   Widget _buildFacilitiesSection() {
     final facilities = [
-      {'icon': Icons.menu_book_rounded, 'name': 'Perpustakaan'},
-      {'icon': Icons.school_rounded, 'name': 'TPA'},
-      {'icon': Icons.local_parking_rounded, 'name': 'Parkir Luas'},
-      {'icon': Icons.wc_rounded, 'name': 'Toilet Bersih'},
-      {'icon': Icons.ac_unit_rounded, 'name': 'AC'},
-      {'icon': Icons.wifi_rounded, 'name': 'WiFi Gratis'},
+      {'icon': Icons.menu_book_rounded, 'name': 'Perpustakaan', 'color': AppColors.primary},
+      {'icon': Icons.school_rounded, 'name': 'TPA', 'color': AppColors.gold},
+      {'icon': Icons.local_parking_rounded, 'name': 'Parkir Luas', 'color': AppColors.teal},
+      {'icon': Icons.wc_rounded, 'name': 'Toilet Bersih', 'color': AppColors.info},
+      {'icon': Icons.ac_unit_rounded, 'name': 'AC', 'color': const Color(0xFF5C6BC0)},
+      {'icon': Icons.wifi_rounded, 'name': 'WiFi Gratis', 'color': const Color(0xFF7E57C2)},
     ];
 
     return Padding(
-      padding: AppPadding.allL,
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Fasilitas',
-            style: AppTextStyles.titleLarge.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingM),
+          _buildSectionTitle('Fasilitas', Icons.check_circle_rounded),
+          const SizedBox(height: 16),
           Wrap(
-            spacing: AppDimensions.spacingS,
-            runSpacing: AppDimensions.spacingS,
-            children: facilities.map((facility) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.spacingM,
-                  vertical: AppDimensions.spacingS,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.allS,
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      facility['icon'] as IconData,
-                      size: 18,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: AppDimensions.spacingXS),
-                    Text(
-                      facility['name'] as String,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+            spacing: 10,
+            runSpacing: 10,
+            children: facilities.asMap().entries.map((entry) {
+              final index = entry.key;
+              final facility = entry.value;
+              return _buildFacilityChip(
+                icon: facility['icon'] as IconData,
+                name: facility['name'] as String,
+                color: facility['color'] as Color,
+                delay: 800 + (index * 50),
               );
             }).toList(),
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1);
+    );
+  }
+
+  Widget _buildFacilityChip({
+    required IconData icon,
+    required String name,
+    required Color color,
+    required int delay,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color.withValues(alpha: 0.15),
+            color.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 13,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: delay.ms).scale(begin: const Offset(0.9, 0.9));
   }
 
   Widget _buildContactSection() {
     return Padding(
-      padding: AppPadding.hL,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Kontak & Sosial Media',
-            style: AppTextStyles.titleLarge.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: AppDimensions.spacingM),
+          _buildSectionTitle('Kontak & Sosial Media', Icons.contact_phone_rounded),
+          const SizedBox(height: 16),
           _buildContactCard(
             icon: Icons.phone_rounded,
             title: 'Telepon',
             content: '(021) 1234-5678',
             color: AppColors.success,
+            delay: 1100,
           ),
-          const SizedBox(height: AppDimensions.spacingM),
+          const SizedBox(height: 12),
           _buildContactCard(
             icon: Icons.email_rounded,
             title: 'Email',
             content: 'info@masjidalkhlas.org',
             color: AppColors.error,
+            delay: 1150,
           ),
-          const SizedBox(height: AppDimensions.spacingM),
-          Container(
-            padding: AppPadding.allM,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: AppRadius.allL,
-              boxShadow: AppTheme.cardShadow,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSocialIcon(Icons.facebook_rounded, AppColors.info),
-                _buildSocialIcon(Icons.camera_alt_rounded, AppColors.error),
-                _buildSocialIcon(Icons.play_circle_rounded, AppColors.error),
-                _buildSocialIcon(Icons.send_rounded, AppColors.info),
-              ],
-            ),
-          ),
+          const SizedBox(height: 16),
+          _buildSocialMediaRow(),
         ],
       ),
-    ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1);
+    );
   }
 
   Widget _buildContactCard({
@@ -353,56 +469,154 @@ class ProfilMasjidScreen extends StatelessWidget {
     required String title,
     required String content,
     required Color color,
+    required int delay,
   }) {
     return Container(
-      padding: AppPadding.allM,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: AppRadius.allL,
-        boxShadow: AppTheme.cardShadow,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: color.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppDimensions.spacingS),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: AppRadius.allS,
+              gradient: LinearGradient(
+                colors: [color, color.withValues(alpha: 0.7)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: AppColors.white, size: 20),
           ),
-          const SizedBox(width: AppDimensions.spacingM),
+          const SizedBox(width: 14),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: AppTextStyles.labelMedium.copyWith(
+                style: TextStyle(
+                  fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 content,
-                style: AppTextStyles.titleSmall.copyWith(
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
         ],
       ),
-    );
+    ).animate().fadeIn(delay: delay.ms).slideX(begin: 0.05);
   }
 
-  Widget _buildSocialIcon(IconData icon, Color color) {
+  Widget _buildSocialMediaRow() {
+    final socials = [
+      {'icon': Icons.facebook_rounded, 'color': const Color(0xFF1877F2)},
+      {'icon': Icons.camera_alt_rounded, 'color': const Color(0xFFE4405F)},
+      {'icon': Icons.play_circle_rounded, 'color': const Color(0xFFFF0000)},
+      {'icon': Icons.send_rounded, 'color': const Color(0xFF0088CC)},
+    ];
+
     return Container(
-      padding: const EdgeInsets.all(AppDimensions.spacingM),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Icon(icon, color: color, size: 24),
-    );
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: socials.asMap().entries.map((entry) {
+          final index = entry.key;
+          final social = entry.value;
+          return _buildSocialIcon(
+            icon: social['icon'] as IconData,
+            color: social['color'] as Color,
+            delay: 1200 + (index * 50),
+          );
+        }).toList(),
+      ),
+    ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.1);
   }
+
+  Widget _buildSocialIcon({
+    required IconData icon,
+    required Color color,
+    required int delay,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color.withValues(alpha: 0.15),
+            color.withValues(alpha: 0.05),
+          ],
+        ),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Icon(icon, color: color, size: 22),
+    ).animate().fadeIn(delay: delay.ms).scale(begin: const Offset(0.8, 0.8));
+  }
+}
+
+// Pattern Painter for header overlay
+class _MasjidPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.white.withValues(alpha: 0.04)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    const spacing = 30.0;
+    
+    for (double x = 0; x < size.width + spacing; x += spacing) {
+      for (double y = 0; y < size.height + spacing; y += spacing) {
+        final path = Path()
+          ..moveTo(x, y - 8)
+          ..lineTo(x + 8, y)
+          ..lineTo(x, y + 8)
+          ..lineTo(x - 8, y)
+          ..close();
+        canvas.drawPath(path, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
