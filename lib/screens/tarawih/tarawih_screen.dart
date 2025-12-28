@@ -117,10 +117,13 @@ class _TarawihScreenState extends State<TarawihScreen> {
                       color: AppColors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.nights_stay_rounded,
-                      size: 36,
-                      color: AppColors.white,
+                    child: Hero(
+                      tag: 'hero_tarawih_icon',
+                      child: Icon(
+                        Icons.nights_stay_rounded,
+                        size: 36,
+                        color: AppColors.white,
+                      ),
                     ),
                   ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                   const SizedBox(height: 12),

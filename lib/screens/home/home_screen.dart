@@ -838,7 +838,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             : [const Color(0xFF00897B), const Color(0xFF26A69A)],
         onTap: () {},
         page: ZakatListScreen(isAdmin: _isAdmin),
-        heroTag: 'hero_zakat',
+        heroTag: _isAdmin ? 'hero_zakat_admin' : 'hero_zakat_user',
       ),
       _FeatureItem(
         title: 'Jadwal Sholat',
@@ -1082,53 +1082,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required _FeatureItem feature,
     required int delay,
   }) {
+    final primaryColor = feature.gradient.first;
+    
     return GestureDetector(
       onTap: () => _navigateTo(feature.page),
       child: AspectRatio(
         aspectRatio: 1.3,
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: feature.gradient,
-            ),
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: feature.gradient.first.withValues(alpha: 0.4),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 15,
-                offset: const Offset(0, 8),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
           child: Stack(
             children: [
-              // Background pattern
-              Positioned(
-                top: -20,
-                right: -20,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.white.withValues(alpha: 0.1),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -30,
-                left: -30,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.white.withValues(alpha: 0.05),
-                  ),
-                ),
-              ),
               // Content
               Padding(
                 padding: const EdgeInsets.all(14),
@@ -1138,7 +1111,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.2),
+                        gradient: LinearGradient(
+                          colors: feature.gradient,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Hero(
@@ -1158,8 +1133,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       children: [
                         Text(
                           feature.title,
-                          style: const TextStyle(
-                            color: AppColors.white,
+                          style: TextStyle(
+                            color: primaryColor,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1170,7 +1145,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         Text(
                           feature.subtitle,
                           style: TextStyle(
-                            color: AppColors.white.withValues(alpha: 0.8),
+                            color: AppColors.textSecondary,
                             fontSize: 11,
                           ),
                           maxLines: 1,
@@ -1182,25 +1157,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            // Arrow indicator
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  color: AppColors.white,
-                  size: 16,
+              // Arrow indicator
+              Positioned(
+                bottom: 14,
+                right: 14,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    color: primaryColor,
+                    size: 16,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ).animate().fadeIn(delay: delay.ms).scale(
             begin: const Offset(0.9, 0.9),

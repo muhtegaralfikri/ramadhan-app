@@ -173,10 +173,13 @@ class _ImsakiyahScreenState extends State<ImsakiyahScreen> {
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.calendar_view_month_rounded,
-                          size: 36,
-                          color: AppColors.white,
+                        child: Hero(
+                          tag: 'hero_imsakiyah_icon',
+                          child: Icon(
+                            Icons.calendar_view_month_rounded,
+                            size: 36,
+                            color: AppColors.white,
+                          ),
                         ),
                       ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                       const SizedBox(height: 12),

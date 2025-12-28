@@ -250,15 +250,14 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.white.withValues(alpha: 0.3),
-                        width: 2,
-                      ),
                     ),
-                    child: const Icon(
-                      Icons.notifications_active_rounded,
-                      size: 40,
-                      color: AppColors.white,
+                    child: Hero(
+                      tag: 'hero_reminder_icon',
+                      child: Icon(
+                        Icons.notifications_active_rounded,
+                        size: 40,
+                        color: AppColors.white,
+                      ),
                     ),
                   ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                   const SizedBox(height: 12),

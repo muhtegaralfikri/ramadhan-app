@@ -36,7 +36,7 @@ class ProfilMasjidScreen extends StatelessWidget {
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: AppColors.gold,
+      backgroundColor: const Color(0xFF455A64),
       leading: Padding(
         padding: const EdgeInsets.all(8),
         child: GestureDetector(
@@ -59,8 +59,12 @@ class ProfilMasjidScreen extends StatelessWidget {
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: BoxDecoration(
-            gradient: AppTheme.goldGradient,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF455A64), Color(0xFF607D8B)],
+            ),
           ),
           child: Stack(
             children: [
@@ -107,17 +111,6 @@ class ProfilMasjidScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.white.withValues(alpha: 0.3),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.goldDark.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
                         ),
                         child: const Hero(
                           tag: 'hero_masjid_icon',
@@ -154,15 +147,15 @@ class ProfilMasjidScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.gold, AppColors.goldDark],
+            colors: [Color(0xFF455A64), Color(0xFF607D8B)],
           ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.gold.withValues(alpha: 0.4),
+              color: const Color(0xFF455A64).withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),

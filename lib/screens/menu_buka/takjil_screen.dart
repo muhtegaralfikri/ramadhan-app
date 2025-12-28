@@ -145,10 +145,6 @@ class _TakjilScreenState extends State<TakjilScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.white.withValues(alpha: 0.3),
-                            width: 2,
-                          ),
                         ),
                         child: Hero(
                           tag: 'hero_menu_icon',

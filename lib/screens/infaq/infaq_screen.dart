@@ -122,10 +122,13 @@ class _InfaqScreenState extends State<InfaqScreen> {
                         color: AppColors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.volunteer_activism_rounded,
-                        size: 36,
-                        color: AppColors.white,
+                      child: Hero(
+                        tag: 'hero_infaq_icon',
+                        child: Icon(
+                          Icons.volunteer_activism_rounded,
+                          size: 36,
+                          color: AppColors.white,
+                        ),
                       ),
                     ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                     const SizedBox(height: 8),
