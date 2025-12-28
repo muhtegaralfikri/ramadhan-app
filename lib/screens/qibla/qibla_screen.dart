@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:ramadan_app/constants/app_colors.dart';
 import 'package:ramadan_app/services/location_service.dart';
 import 'package:ramadan_app/services/qibla_service.dart';
+import 'falak_calculator_screen.dart';
 
 class QiblaScreen extends StatefulWidget {
   const QiblaScreen({super.key});
@@ -24,8 +25,14 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
   bool _isLoading = true;
   String? _errorMessage;
   bool _hasCompass = false;
+  bool _isManualMode = false;
+  double? _manualLatitude;
+  double? _manualLongitude;
 
   StreamSubscription<CompassEvent>? _compassSubscription;
+  
+  final _latController = TextEditingController();
+  final _lngController = TextEditingController();
 
   @override
   void initState() {
@@ -36,6 +43,8 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _compassSubscription?.cancel();
+    _latController.dispose();
+    _lngController.dispose();
     super.dispose();
   }
 
@@ -307,9 +316,241 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
           // Info Cards
           _buildInfoCards(),
           const SizedBox(height: 20),
+          // Manual Qibla Finder Button
+          _buildManualFinderButton(),
+          const SizedBox(height: 16),
           // Instructions
           _buildInstructions(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildManualFinderButton() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FalakCalculatorScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFF1565C0).withValues(alpha: 0.3),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1565C0).withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1565C0).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.calculate_rounded,
+                color: Color(0xFF1565C0),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Kalkulator Ilmu Falak',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Hitung arah kiblat & posisi matahari',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF1565C0),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 450.ms).slideY(begin: 0.1);
+  }
+
+  void _showManualInputDialog() {
+    // Pre-fill with current values if available
+    if (_manualLatitude != null) {
+      _latController.text = _manualLatitude.toString();
+    }
+    if (_manualLongitude != null) {
+      _lngController.text = _manualLongitude.toString();
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1976D2).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.edit_location_rounded,
+                color: Color(0xFF1976D2),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('Input Koordinat'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Masukkan koordinat lokasi masjid atau tempat yang ingin dicari arah kiblatnya.',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _latController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+              decoration: InputDecoration(
+                labelText: 'Latitude',
+                hintText: 'Contoh: -6.2088',
+                prefixIcon: const Icon(Icons.north_rounded),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: AppColors.background,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _lngController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+              decoration: InputDecoration(
+                labelText: 'Longitude',
+                hintText: 'Contoh: 106.8456',
+                prefixIcon: const Icon(Icons.east_rounded),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: AppColors.background,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Reset to GPS location
+              setState(() {
+                _isManualMode = false;
+              });
+              _initQibla();
+            },
+            child: const Text('Gunakan GPS'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final lat = double.tryParse(_latController.text);
+              final lng = double.tryParse(_lngController.text);
+              
+              if (lat == null || lng == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Koordinat tidak valid'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              
+              if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Koordinat di luar jangkauan'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              
+              Navigator.pop(context);
+              _calculateManualQibla(lat, lng);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1976D2),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Hitung Kiblat'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _calculateManualQibla(double lat, double lng) {
+    final qiblaDir = QiblaService.calculateQiblaDirection(lat, lng);
+    final distance = QiblaService.calculateDistanceToKaaba(lat, lng);
+
+    setState(() {
+      _isManualMode = true;
+      _manualLatitude = lat;
+      _manualLongitude = lng;
+      _qiblaDirection = qiblaDir;
+      _distanceToKaaba = distance;
+      _locationName = 'Koordinat Manual';
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 12),
+            Text('Arah kiblat: ${qiblaDir.toStringAsFixed(1)}° dari utara'),
+          ],
+        ),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

@@ -1,0 +1,282 @@
+import 'dart:math' as math;
+
+class FalakService {
+  // Kaaba coordinates
+  static const double kaabaLatitude = 21.4225;
+  static const double kaabaLongitude = 39.8262;
+
+  /// Convert DMS (Degrees, Minutes, Seconds) to Decimal Degrees
+  static double dmsToDecimal({
+    required int degrees,
+    required int minutes,
+    required double seconds,
+    required bool isNegative, // true for South latitude or West longitude
+  }) {
+    double decimal = degrees.abs() + (minutes / 60) + (seconds / 3600);
+    return isNegative ? -decimal : decimal;
+  }
+
+  /// Convert Decimal Degrees to DMS
+  static Map<String, dynamic> decimalToDms(double decimal) {
+    final isNegative = decimal < 0;
+    decimal = decimal.abs();
+    final degrees = decimal.floor();
+    final minutesDecimal = (decimal - degrees) * 60;
+    final minutes = minutesDecimal.floor();
+    final seconds = (minutesDecimal - minutes) * 60;
+    
+    return {
+      'degrees': degrees,
+      'minutes': minutes,
+      'seconds': seconds,
+      'isNegative': isNegative,
+    };
+  }
+
+  /// Calculate Qibla direction from a location
+  static double calculateQiblaDirection(double latitude, double longitude) {
+    final lat1 = latitude * math.pi / 180;
+    final lon1 = longitude * math.pi / 180;
+    final lat2 = kaabaLatitude * math.pi / 180;
+    final lon2 = kaabaLongitude * math.pi / 180;
+
+    final dLon = lon2 - lon1;
+    final y = math.sin(dLon) * math.cos(lat2);
+    final x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dLon);
+    
+    var bearing = math.atan2(y, x);
+    bearing = bearing * 180 / math.pi;
+    bearing = (bearing + 360) % 360;
+
+    return bearing;
+  }
+
+  /// Calculate Julian Day Number
+  static double calculateJulianDay(DateTime dateTime) {
+    int year = dateTime.year;
+    int month = dateTime.month;
+    int day = dateTime.day;
+    double hour = dateTime.hour + dateTime.minute / 60 + dateTime.second / 3600;
+
+    if (month <= 2) {
+      year -= 1;
+      month += 12;
+    }
+
+    int a = (year / 100).floor();
+    int b = 2 - a + (a / 4).floor();
+
+    double jd = (365.25 * (year + 4716)).floor() +
+        (30.6001 * (month + 1)).floor() +
+        day +
+        hour / 24 +
+        b -
+        1524.5;
+
+    return jd;
+  }
+
+  /// Calculate Sun's position (Declination and Equation of Time)
+  static Map<String, double> calculateSunPosition(DateTime dateTime) {
+    final jd = calculateJulianDay(dateTime);
+    final t = (jd - 2451545.0) / 36525; // Julian centuries from J2000.0
+
+    // Mean longitude of the Sun
+    double l0 = 280.46646 + 36000.76983 * t + 0.0003032 * t * t;
+    l0 = l0 % 360;
+
+    // Mean anomaly of the Sun
+    double m = 357.52911 + 35999.05029 * t - 0.0001537 * t * t;
+    m = m % 360;
+    final mRad = m * math.pi / 180;
+
+    // Eccentricity of Earth's orbit
+    final e = 0.016708634 - 0.000042037 * t - 0.0000001267 * t * t;
+
+    // Sun's equation of center
+    final c = (1.914602 - 0.004817 * t - 0.000014 * t * t) * math.sin(mRad) +
+        (0.019993 - 0.000101 * t) * math.sin(2 * mRad) +
+        0.000289 * math.sin(3 * mRad);
+
+    // Sun's true longitude
+    double sunLong = l0 + c;
+    sunLong = sunLong % 360;
+    final sunLongRad = sunLong * math.pi / 180;
+
+    // Obliquity of the ecliptic
+    final obliquity = 23.439291 - 0.0130042 * t;
+    final obliquityRad = obliquity * math.pi / 180;
+
+    // Sun's declination
+    final declination = math.asin(math.sin(obliquityRad) * math.sin(sunLongRad)) * 180 / math.pi;
+
+    // Equation of Time (in minutes)
+    final y = math.tan(obliquityRad / 2) * math.tan(obliquityRad / 2);
+    final eqTime = 4 * 180 / math.pi * (
+        y * math.sin(2 * l0 * math.pi / 180) -
+        2 * e * math.sin(mRad) +
+        4 * e * y * math.sin(mRad) * math.cos(2 * l0 * math.pi / 180) -
+        0.5 * y * y * math.sin(4 * l0 * math.pi / 180) -
+        1.25 * e * e * math.sin(2 * mRad)
+    );
+
+    return {
+      'declination': declination,
+      'equationOfTime': eqTime,
+    };
+  }
+
+  /// Calculate Sun's Azimuth at a given time and location
+  static double calculateSunAzimuth({
+    required double latitude,
+    required double longitude,
+    required DateTime dateTime,
+    required double timezoneOffset, // in hours
+  }) {
+    final sunPos = calculateSunPosition(dateTime);
+    final declination = sunPos['declination']! * math.pi / 180;
+    final eqTime = sunPos['equationOfTime']!;
+
+    // Local time in hours
+    final localTime = dateTime.hour + dateTime.minute / 60 + dateTime.second / 3600;
+    
+    // Solar time
+    final solarTime = localTime + eqTime / 60 + (longitude / 15) - timezoneOffset;
+    
+    // Hour angle
+    final hourAngle = (solarTime - 12) * 15 * math.pi / 180;
+
+    final latRad = latitude * math.pi / 180;
+
+    // Solar altitude
+    final sinAlt = math.sin(latRad) * math.sin(declination) +
+        math.cos(latRad) * math.cos(declination) * math.cos(hourAngle);
+    final altitude = math.asin(sinAlt);
+
+    // Solar azimuth
+    final cosAz = (math.sin(declination) - math.sin(latRad) * math.sin(altitude)) /
+        (math.cos(latRad) * math.cos(altitude));
+    
+    double azimuth = math.acos(cosAz.clamp(-1.0, 1.0)) * 180 / math.pi;
+    
+    if (hourAngle > 0) {
+      azimuth = 360 - azimuth;
+    }
+
+    return azimuth;
+  }
+
+  /// Calculate shadow direction (opposite of sun azimuth)
+  static double calculateShadowDirection(double sunAzimuth) {
+    return (sunAzimuth + 180) % 360;
+  }
+
+  /// Find the time when shadow points to Qibla (Rashdul Qiblat)
+  static Map<String, dynamic>? findRashdulQiblat({
+    required double latitude,
+    required double longitude,
+    required DateTime date,
+    required double timezoneOffset,
+  }) {
+    final qiblaDirection = calculateQiblaDirection(latitude, longitude);
+    
+    // Shadow should point to Qibla, so Sun should be opposite
+    final targetSunAzimuth = (qiblaDirection + 180) % 360;
+
+    // Search through the day in 1-minute intervals
+    List<Map<String, dynamic>> results = [];
+    
+    for (int hour = 6; hour < 18; hour++) {
+      for (int minute = 0; minute < 60; minute++) {
+        final testTime = DateTime(date.year, date.month, date.day, hour, minute);
+        final sunAzimuth = calculateSunAzimuth(
+          latitude: latitude,
+          longitude: longitude,
+          dateTime: testTime,
+          timezoneOffset: timezoneOffset,
+        );
+
+        // Check if sun azimuth is close to target (within 0.5 degrees)
+        final diff = (sunAzimuth - targetSunAzimuth).abs();
+        if (diff < 0.5 || (360 - diff) < 0.5) {
+          results.add({
+            'time': testTime,
+            'sunAzimuth': sunAzimuth,
+            'shadowDirection': calculateShadowDirection(sunAzimuth),
+          });
+        }
+      }
+    }
+
+    if (results.isEmpty) return null;
+    
+    // Return the first occurrence
+    return results.first;
+  }
+
+  /// Calculate all Falak data for a given position and time
+  static Map<String, dynamic> calculateFalakData({
+    required double latitude,
+    required double longitude,
+    required DateTime dateTime,
+    required double timezoneOffset,
+  }) {
+    final qiblaDirection = calculateQiblaDirection(latitude, longitude);
+    final sunAzimuth = calculateSunAzimuth(
+      latitude: latitude,
+      longitude: longitude,
+      dateTime: dateTime,
+      timezoneOffset: timezoneOffset,
+    );
+    final shadowDirection = calculateShadowDirection(sunAzimuth);
+    final sunPos = calculateSunPosition(dateTime);
+
+    // Find Rashdul Qiblat time
+    final rashdulQiblat = findRashdulQiblat(
+      latitude: latitude,
+      longitude: longitude,
+      date: dateTime,
+      timezoneOffset: timezoneOffset,
+    );
+
+    // Calculate difference between shadow and qibla
+    double shadowQiblaDiff = (shadowDirection - qiblaDirection).abs();
+    if (shadowQiblaDiff > 180) shadowQiblaDiff = 360 - shadowQiblaDiff;
+
+    // Determine validity window (when shadow is within 5 degrees of qibla)
+    String validityInfo = '';
+    if (shadowQiblaDiff <= 5) {
+      validityInfo = 'Bayangan mengarah ke Kiblat saat ini!';
+    } else if (rashdulQiblat != null) {
+      final rashdulTime = rashdulQiblat['time'] as DateTime;
+      validityInfo = 'Rashdul Qiblat pukul ${_formatTime(rashdulTime)}';
+    } else {
+      validityInfo = 'Tidak ada Rashdul Qiblat hari ini';
+    }
+
+    return {
+      'qiblaDirection': qiblaDirection,
+      'sunAzimuth': sunAzimuth,
+      'shadowDirection': shadowDirection,
+      'declination': sunPos['declination'],
+      'equationOfTime': sunPos['equationOfTime'],
+      'shadowQiblaDiff': shadowQiblaDiff,
+      'validityInfo': validityInfo,
+      'rashdulQiblat': rashdulQiblat,
+    };
+  }
+
+  static String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// Format direction to compass point
+  static String formatDirection(double degrees) {
+    const directions = [
+      'U', 'UTL', 'TL', 'TTL', 'T', 'TGR', 'GR', 'SGR',
+      'S', 'SBD', 'BD', 'BBD', 'B', 'BBL', 'BL', 'UBL'
+    ];
+    final index = ((degrees + 11.25) / 22.5).floor() % 16;
+    return '${degrees.toStringAsFixed(1)}° ${directions[index]}';
+  }
+}
