@@ -141,7 +141,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: AppColors.primary,
+      backgroundColor: const Color(0xFF1976D2),
       leading: Padding(
         padding: const EdgeInsets.all(8),
         child: GestureDetector(
@@ -165,7 +165,11 @@ class _JadwalScreenState extends State<JadwalScreen> {
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+            ),
           ),
           child: Stack(
             children: [

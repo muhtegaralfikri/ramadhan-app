@@ -164,7 +164,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: AppColors.primary,
+      backgroundColor: widget.isAdmin ? const Color(0xFF43A047) : const Color(0xFF00897B),
       leading: Padding(
         padding: const EdgeInsets.all(8),
         child: GestureDetector(
@@ -188,7 +188,13 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: widget.isAdmin
+                  ? [const Color(0xFF43A047), const Color(0xFF66BB6A)]
+                  : [const Color(0xFF00897B), const Color(0xFF26A69A)],
+            ),
           ),
           child: Stack(
             children: [

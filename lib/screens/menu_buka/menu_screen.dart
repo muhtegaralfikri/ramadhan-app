@@ -73,7 +73,7 @@ class MenuScreen extends StatelessWidget {
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: AppColors.primary,
+      backgroundColor: const Color(0xFF5E35B1),
       leading: Padding(
         padding: const EdgeInsets.all(8),
         child: GestureDetector(
@@ -97,7 +97,11 @@ class MenuScreen extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF5E35B1), Color(0xFF7E57C2)],
+            ),
           ),
           child: Stack(
             children: [
