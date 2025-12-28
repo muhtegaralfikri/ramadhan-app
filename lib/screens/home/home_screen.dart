@@ -12,6 +12,7 @@ import '../menu_buka/menu_screen.dart';
 import '../masjid/profil_masjid_screen.dart';
 import '../qibla/qibla_screen.dart';
 import '../settings/reminder_settings_screen.dart';
+import '../calendar/hijri_calendar_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/prayer_times_service.dart';
 import '../../services/location_service.dart';
@@ -754,6 +755,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         onTap: () {},
         page: const ReminderSettingsScreen(),
         heroTag: 'hero_reminder_icon',
+      ),
+      _FeatureItem(
+        title: 'Kalender Hijriah',
+        subtitle: 'Tanggal & hari penting',
+        icon: Icons.calendar_month_rounded,
+        gradient: [const Color(0xFF6A1B9A), const Color(0xFF9C27B0)],
+        onTap: () {},
+        page: const HijriCalendarScreen(),
+        heroTag: 'hero_hijri_icon',
       ),
     ];
 
