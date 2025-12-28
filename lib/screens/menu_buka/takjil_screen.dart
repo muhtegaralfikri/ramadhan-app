@@ -228,22 +228,28 @@ class _TakjilScreenState extends State<TakjilScreen> {
   }
 
   Widget _buildDayCard(int day, List<TakjilDonor> donors, bool isToday, int index) {
-    // Premium Simple Style:
-    // Today: Gold accent.
-    // Others: Gray/Neutral.
-    final accentColor = isToday ? AppColors.gold : const Color(0xFF757575);
-    final badgeBgColor = isToday ? AppColors.gold : const Color(0xFFEEEEEE);
-    final badgeTextColor = isToday ? AppColors.white : const Color(0xFF616161);
+    // Reverting to colorful/gradient style as requested
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: isToday 
+          ? const LinearGradient(
+              colors: [Color(0xFF5E35B1), Color(0xFF7E57C2)], // Deep Purple for Today
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )
+          : const LinearGradient(
+              colors: [Color(0xFFEDE7F6), Colors.white], // Light Purple Tint for others
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
         borderRadius: BorderRadius.circular(16),
-        border: isToday ? Border.all(color: AppColors.gold.withValues(alpha: 0.5), width: 1.5) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04), // Very subtle shadow
+            color: isToday 
+              ? const Color(0xFF5E35B1).withValues(alpha: 0.3) 
+              : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -265,9 +271,15 @@ class _TakjilScreenState extends State<TakjilScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: badgeBgColor,
+                    color: isToday ? AppColors.white.withValues(alpha: 0.2) : AppColors.white,
                     borderRadius: BorderRadius.circular(14),
-                    // No deep shadows, clean flat/soft look
+                    boxShadow: isToday ? null : [
+                      BoxShadow(
+                        color: Colors.purple.withValues(alpha: 0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -275,7 +287,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                       Text(
                         '$day',
                         style: TextStyle(
-                          color: badgeTextColor,
+                          color: isToday ? AppColors.white : const Color(0xFF5E35B1),
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -284,7 +296,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                         Text(
                           'HARI INI',
                           style: TextStyle(
-                            color: badgeTextColor.withValues(alpha: 0.9),
+                            color: AppColors.white.withValues(alpha: 0.9),
                             fontSize: 7,
                             fontWeight: FontWeight.w600,
                           ),
@@ -304,7 +316,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isToday ? AppColors.textPrimary : AppColors.textSecondary,
+                          color: isToday ? AppColors.white : const Color(0xFF4527A0),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -313,12 +325,13 @@ class _TakjilScreenState extends State<TakjilScreen> {
                           'Belum ada donatur',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary.withValues(alpha: 0.6),
+                            color: isToday 
+                              ? AppColors.white.withValues(alpha: 0.7) 
+                              : AppColors.textSecondary.withValues(alpha: 0.6),
                             fontStyle: FontStyle.italic,
                           ),
                         )
                       else
-                        // Use simple text list or very clean chips
                         Wrap(
                           spacing: 8,
                           runSpacing: 6,
@@ -326,15 +339,15 @@ class _TakjilScreenState extends State<TakjilScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: isToday 
-                                ? AppColors.gold.withValues(alpha: 0.1) 
-                                : const Color(0xFFF5F5F5),
+                                ? AppColors.white.withValues(alpha: 0.15) 
+                                : const Color(0xFF5E35B1).withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               donor.donorName,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isToday ? const Color(0xFF8D6E63) : AppColors.textPrimary, // Brownish for Gold theme
+                                color: isToday ? AppColors.white : const Color(0xFF5E35B1),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -349,8 +362,10 @@ class _TakjilScreenState extends State<TakjilScreen> {
                   IconButton(
                     onPressed: () => _showAddDonorDialog(day),
                     icon: Icon(
-                      Icons.edit_note_rounded, // Changed icon to be more subtle
-                      color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      Icons.edit_note_rounded,
+                      color: isToday 
+                        ? AppColors.white.withValues(alpha: 0.8)
+                        : const Color(0xFF5E35B1).withValues(alpha: 0.5),
                       size: 20,
                     ),
                   ),

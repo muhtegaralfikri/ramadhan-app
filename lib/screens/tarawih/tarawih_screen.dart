@@ -43,7 +43,8 @@ class _TarawihScreenState extends State<TarawihScreen> {
       
       final now = DateTime.now();
       final hijriDate = HijriService.gregorianToHijri(now);
-      final currentDay = hijriDate.month == 9 ? hijriDate.day : 1;
+      // DEBUG: Default to 2 for testing UI
+      final currentDay = hijriDate.month == 9 ? hijriDate.day : 2;
       
       if (mounted) {
         setState(() {
@@ -199,17 +200,29 @@ class _TarawihScreenState extends State<TarawihScreen> {
   }
 
   Widget _buildDayCard(int day, TarawihSchedule? schedule, bool isToday, int index) {
-    const color = Color(0xFF00695C);
+    // Colorful Gradient Style (Teal Theme)
+    final primaryColor = const Color(0xFF00695C);
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: isToday 
+          ? LinearGradient(
+              colors: [primaryColor, const Color(0xFF00897B)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )
+          : const LinearGradient(
+              colors: [Color(0xFFE0F2F1), Colors.white], // Light Teal Tint
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
         borderRadius: BorderRadius.circular(16),
-        border: isToday ? Border.all(color: color, width: 2) : null,
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.1),
+            color: isToday 
+              ? primaryColor.withValues(alpha: 0.3) 
+              : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -229,29 +242,32 @@ class _TarawihScreenState extends State<TarawihScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isToday
-                          ? [AppColors.primary, AppColors.primaryDark]
-                          : [color, color.withValues(alpha: 0.7)],
-                    ),
+                    color: isToday ? AppColors.white.withValues(alpha: 0.2) : AppColors.white,
                     borderRadius: BorderRadius.circular(14),
+                    boxShadow: isToday ? null : [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '$day',
-                        style: const TextStyle(
-                          color: AppColors.white,
+                        style: TextStyle(
+                          color: isToday ? AppColors.white : primaryColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       if (isToday)
-                        const Text(
+                        Text(
                           'MALAM INI',
                           style: TextStyle(
-                            color: AppColors.white,
+                            color: AppColors.white.withValues(alpha: 0.9),
                             fontSize: 5,
                             fontWeight: FontWeight.w600,
                           ),
@@ -270,7 +286,7 @@ class _TarawihScreenState extends State<TarawihScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isToday ? color : AppColors.textPrimary,
+                          color: isToday ? AppColors.white : AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -279,7 +295,9 @@ class _TarawihScreenState extends State<TarawihScreen> {
                           'Belum ada jadwal',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: isToday 
+                              ? AppColors.white.withValues(alpha: 0.7) 
+                              : AppColors.textSecondary.withValues(alpha: 0.6),
                             fontStyle: FontStyle.italic,
                           ),
                         )
@@ -288,34 +306,41 @@ class _TarawihScreenState extends State<TarawihScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (schedule.imamName != null)
-                              Row(
-                                children: [
-                                  Icon(Icons.person_rounded, size: 14, color: color),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Imam: ${schedule.imamName}',
-                                    style: TextStyle(fontSize: 12, color: color),
-                                  ),
-                                ],
-                              ),
-                            if (schedule.startTime != null)
-                              Row(
-                                children: [
-                                  Icon(Icons.access_time_rounded, size: 14, color: AppColors.textSecondary),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Mulai: ${schedule.startTime}',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_rounded, 
+                                      size: 14, 
+                                      color: isToday ? AppColors.white.withValues(alpha: 0.9) : primaryColor
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Imam: ${schedule.imamName}',
+                                      style: TextStyle(
+                                        fontSize: 12, 
+                                        color: isToday ? AppColors.white.withValues(alpha: 0.9) : primaryColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             Row(
                               children: [
-                                Icon(Icons.repeat_rounded, size: 14, color: AppColors.textSecondary),
+                                Icon(
+                                  Icons.access_time_rounded, 
+                                  size: 14, 
+                                  color: isToday ? AppColors.white.withValues(alpha: 0.7) : AppColors.textSecondary
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${schedule.rakaat} rakaat',
-                                  style: const TextStyle(fontSize: 12),
+                                  '${schedule.startTime ?? "-"} • ${schedule.rakaat} rakaat',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isToday ? AppColors.white.withValues(alpha: 0.7) : AppColors.textSecondary
+                                  ),
                                 ),
                               ],
                             ),
@@ -325,7 +350,13 @@ class _TarawihScreenState extends State<TarawihScreen> {
                   ),
                 ),
                 if (_isAdmin)
-                  Icon(Icons.edit_rounded, size: 18, color: color.withValues(alpha: 0.5)),
+                  Icon(
+                    Icons.edit_rounded, 
+                    size: 18, 
+                    color: isToday 
+                      ? AppColors.white.withValues(alpha: 0.6) 
+                      : primaryColor.withValues(alpha: 0.5)
+                  ),
               ],
             ),
           ),
