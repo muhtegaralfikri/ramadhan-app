@@ -228,18 +228,23 @@ class _TakjilScreenState extends State<TakjilScreen> {
   }
 
   Widget _buildDayCard(int day, List<TakjilDonor> donors, bool isToday, int index) {
-    final color = isToday ? AppColors.primary : const Color(0xFF5E35B1);
+    // Premium Simple Style:
+    // Today: Gold accent.
+    // Others: Gray/Neutral.
+    final accentColor = isToday ? AppColors.gold : const Color(0xFF757575);
+    final badgeBgColor = isToday ? AppColors.gold : const Color(0xFFEEEEEE);
+    final badgeTextColor = isToday ? AppColors.white : const Color(0xFF616161);
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: isToday ? Border.all(color: AppColors.primary, width: 2) : null,
+        border: isToday ? Border.all(color: AppColors.gold.withValues(alpha: 0.5), width: 1.5) : null,
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.15),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.04), // Very subtle shadow
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -260,85 +265,77 @@ class _TakjilScreenState extends State<TakjilScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: isToday
-                          ? [AppColors.primary, AppColors.primaryDark]
-                          : [color, color.withValues(alpha: 0.7)],
-                    ),
+                    color: badgeBgColor,
                     borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    // No deep shadows, clean flat/soft look
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '$day',
-                        style: const TextStyle(
-                          color: AppColors.white,
+                        style: TextStyle(
+                          color: badgeTextColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       if (isToday)
-                        const Text(
+                        Text(
                           'HARI INI',
                           style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 6,
+                            color: badgeTextColor.withValues(alpha: 0.9),
+                            fontSize: 7,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 14),
-                // Donor names
+                const SizedBox(width: 16),
+                
+                // Content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hari ke-$day Ramadan',
+                        'Ramadan Hari ke-$day',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isToday ? AppColors.primary : AppColors.textPrimary,
+                          color: isToday ? AppColors.textPrimary : AppColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       if (donors.isEmpty)
                         Text(
                           'Belum ada donatur',
                           style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
+                            fontSize: 13,
+                            color: AppColors.textSecondary.withValues(alpha: 0.6),
                             fontStyle: FontStyle.italic,
                           ),
                         )
                       else
+                        // Use simple text list or very clean chips
                         Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
+                          spacing: 8,
+                          runSpacing: 6,
                           children: donors.map((donor) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.1),
+                              color: isToday 
+                                ? AppColors.gold.withValues(alpha: 0.1) 
+                                : const Color(0xFFF5F5F5),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               donor.donorName,
                               style: TextStyle(
-                                fontSize: 11,
-                                color: color,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                                color: isToday ? const Color(0xFF8D6E63) : AppColors.textPrimary, // Brownish for Gold theme
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           )).toList(),
@@ -346,18 +343,23 @@ class _TakjilScreenState extends State<TakjilScreen> {
                     ],
                   ),
                 ),
-                // Add button for admin
+                
+                // Edit/Add Icon
                 if (_isAdmin)
                   IconButton(
                     onPressed: () => _showAddDonorDialog(day),
-                    icon: Icon(Icons.add_circle_outline, color: color),
+                    icon: Icon(
+                      Icons.edit_note_rounded, // Changed icon to be more subtle
+                      color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      size: 20,
+                    ),
                   ),
               ],
             ),
           ),
         ),
       ),
-    ).animate().fadeIn(delay: (500 + index * 30).ms).slideX(begin: 0.05);
+    ).animate().fadeIn(delay: (200 + index * 30).ms).slideX(begin: 0.05);
   }
 
   Widget _buildAddFAB(BuildContext context) {
@@ -411,127 +413,206 @@ class _TakjilScreenState extends State<TakjilScreen> {
     final contactController = TextEditingController();
     int selectedDay = preselectedDay ?? 1;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Tambah Donatur Takjil'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Day selector
-                DropdownButtonFormField<int>(
+        builder: (context, setSheetState) => Container(
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            24, 
+            20, 
+            24, 
+            MediaQuery.of(context).viewInsets.bottom + 24
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag Handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              const Text(
+                'Tambah Donatur Takjil',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Day Selector
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[50], // Premium light background
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: DropdownButtonFormField<int>(
                   value: selectedDay,
-                  decoration: InputDecoration(
-                    labelText: 'Hari Ramadan',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.calendar_today),
+                  decoration: const InputDecoration(
+                    labelText: 'Pilih Hari Ramadan',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    prefixIcon: Icon(Icons.calendar_today_rounded, color: AppColors.primary),
                   ),
                   items: List.generate(30, (i) => DropdownMenuItem(
                     value: i + 1,
-                    child: Text('Hari ke-${i + 1}'),
+                    child: Text('Hari ke-${i + 1} Ramadan'),
                   )),
                   onChanged: (value) {
                     if (value != null) {
-                      setDialogState(() => selectedDay = value);
+                      setSheetState(() => selectedDay = value);
                     }
                   },
                 ),
-                const SizedBox(height: 16),
-                // Name input
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Donatur *',
-                    hintText: 'Contoh: Keluarga Bpk. Ahmad',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.person),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Description input
-                TextField(
-                  controller: descController,
-                  decoration: InputDecoration(
-                    labelText: 'Keterangan (opsional)',
-                    hintText: 'Contoh: Kolak & Kurma',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.description),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Contact input
-                TextField(
-                  controller: contactController,
-                  decoration: InputDecoration(
-                    labelText: 'Kontak (opsional)',
-                    hintText: 'Contoh: 08123456789',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.phone),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (nameController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nama donatur harus diisi')),
-                  );
-                  return;
-                }
-                
-                final donor = TakjilDonor(
-                  id: const Uuid().v4(),
-                  donorName: nameController.text.trim(),
-                  ramadanDay: selectedDay,
-                  description: descController.text.trim().isEmpty 
-                      ? null 
-                      : descController.text.trim(),
-                  contact: contactController.text.trim().isEmpty 
-                      ? null 
-                      : contactController.text.trim(),
-                  createdAt: DateTime.now(),
-                );
-                
-                try {
-                  await _takjilService.addDonor(donor);
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadData();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Donatur berhasil ditambahkan'),
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Gagal menambah donatur: $e'),
-                        backgroundColor: AppColors.error,
-                      ),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Simpan', style: TextStyle(color: AppColors.white)),
-            ),
-          ],
+              const SizedBox(height: 16),
+              
+              // Name Input
+              _buildModernTextField(
+                controller: nameController,
+                label: 'Nama Donatur',
+                icon: Icons.person_rounded,
+                hint: 'Contoh: Hamba Allah',
+              ),
+              const SizedBox(height: 16),
+              
+              // Description Input
+              _buildModernTextField(
+                controller: descController,
+                label: 'Menu / Keterangan (Opsional)',
+                icon: Icons.restaurant_menu_rounded,
+                hint: 'Contoh: Nasi Kotak 100 pax',
+              ),
+              const SizedBox(height: 16),
+              
+              // Contact Input
+              _buildModernTextField(
+                controller: contactController,
+                label: 'No. WhatsApp (Opsional)',
+                icon: Icons.phone_rounded,
+                hint: '08xxxxxxxxxx',
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 32),
+              
+              // Action Button
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (nameController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Nama donatur wajib diisi')),
+                      );
+                      return;
+                    }
+                    
+                    // Show loading if needed, or just await
+                    // Here straightforward implementation
+                    Navigator.pop(context); // Close sheet first/early or after? Close after.
+                    
+                    final donor = TakjilDonor(
+                      id: const Uuid().v4(),
+                      donorName: nameController.text.trim(),
+                      ramadanDay: selectedDay,
+                      description: descController.text.trim().isEmpty 
+                          ? null 
+                          : descController.text.trim(),
+                      contact: contactController.text.trim().isEmpty 
+                          ? null 
+                          : contactController.text.trim(),
+                      createdAt: DateTime.now(),
+                    );
+                    
+                    try {
+                      await _takjilService.addDonor(donor);
+                      if (mounted) {
+                        _loadData();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Alhamdulillah, donatur berhasil ditambahkan'),
+                            backgroundColor: AppColors.success,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Gagal menambah data: $e'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text(
+                    'Simpan Data',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? hint,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          prefixIcon: Icon(icon, color: AppColors.primary),
         ),
       ),
     );
