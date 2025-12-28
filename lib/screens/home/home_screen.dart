@@ -643,17 +643,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [const Color(0xFF5E35B1), const Color(0xFF7E57C2)],
-          ),
+          color: AppColors.surface, // Standard white/surface color
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF5E35B1).withValues(alpha: 0.3),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 15,
-              offset: const Offset(0, 8),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -666,12 +662,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2),
+                    color: const Color(0xFF5E35B1).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.restaurant_menu_rounded,
-                    color: AppColors.white,
+                    color: Color(0xFF5E35B1),
                     size: 18,
                   ),
                 ),
@@ -679,7 +675,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 const Text(
                   'Donatur Takjil',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -699,7 +695,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Divider(
                 height: 1,
-                color: AppColors.white.withValues(alpha: 0.15),
+                color: Colors.grey.withValues(alpha: 0.15),
               ),
             ),
             
@@ -726,7 +722,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Text(
             label,
             style: TextStyle(
-              color: AppColors.white.withValues(alpha: 0.7),
+              color: AppColors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -736,7 +732,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Text(
             names,
             style: TextStyle(
-              color: isToday ? AppColors.gold : AppColors.white,
+              color: isToday 
+                  ? Colors.black 
+                  : AppColors.textPrimary.withValues(alpha: 0.5),
               fontSize: 14,
               fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
             ),
@@ -1041,7 +1039,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () => _navigateTo(feature.page),
       child: AspectRatio(
-        aspectRatio: 1.3,
+        aspectRatio: 1.1,
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
@@ -1092,7 +1090,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
