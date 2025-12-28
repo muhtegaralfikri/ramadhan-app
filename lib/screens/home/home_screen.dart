@@ -10,6 +10,8 @@ import '../auth/login_screen.dart';
 import '../jadwal/jadwal_screen.dart';
 import '../menu_buka/menu_screen.dart';
 import '../masjid/profil_masjid_screen.dart';
+import '../qibla/qibla_screen.dart';
+import '../settings/reminder_settings_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/prayer_times_service.dart';
 import '../../services/location_service.dart';
@@ -735,63 +737,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         page: const ProfilMasjidScreen(),
         heroTag: 'hero_masjid_icon',
       ),
+      _FeatureItem(
+        title: 'Kompas Kiblat',
+        subtitle: 'Arah kiblat akurat',
+        icon: Icons.explore_rounded,
+        gradient: [const Color(0xFFE65100), const Color(0xFFFF9800)],
+        onTap: () {},
+        page: const QiblaScreen(),
+        heroTag: 'hero_qibla_icon',
+      ),
+      _FeatureItem(
+        title: 'Pengingat',
+        subtitle: 'Sahur & Berbuka',
+        icon: Icons.notifications_active_rounded,
+        gradient: [const Color(0xFF6D4C41), const Color(0xFF8D6E63)],
+        onTap: () {},
+        page: const ReminderSettingsScreen(),
+        heroTag: 'hero_reminder_icon',
+      ),
     ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          // First row - 2 cards
-          Row(
-            children: [
-              Expanded(
-                child: _buildPremiumFeatureCard(
-                  feature: features[0],
-                  delay: 1000,
-                ),
+          // Build rows of 2 cards each
+          for (int i = 0; i < features.length; i += 2)
+            Padding(
+              padding: EdgeInsets.only(bottom: i + 2 < features.length ? 12 : 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildPremiumFeatureCard(
+                      feature: features[i],
+                      delay: 1000 + (i * 50),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: i + 1 < features.length
+                        ? _buildPremiumFeatureCard(
+                            feature: features[i + 1],
+                            delay: 1050 + (i * 50),
+                          )
+                        : const SizedBox(),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: features.length > 1 
-                  ? _buildPremiumFeatureCard(
-                      feature: features[1],
-                      delay: 1100,
-                    )
-                  : const SizedBox(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Second row - 2 cards
-          Row(
-            children: [
-              Expanded(
-                child: features.length > 2 
-                  ? _buildPremiumFeatureCard(
-                      feature: features[2],
-                      delay: 1200,
-                    )
-                  : const SizedBox(),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: features.length > 3
-                  ? _buildPremiumFeatureCard(
-                      feature: features[3],
-                      delay: 1300,
-                    )
-                  : const SizedBox(),
-              ),
-            ],
-          ),
-          // Last card - full width
-          if (features.length > 4) ...[
-            const SizedBox(height: 12),
-            _buildWideFeatureCard(
-              feature: features[4],
-              delay: 1400,
             ),
-          ],
         ],
       ),
     );

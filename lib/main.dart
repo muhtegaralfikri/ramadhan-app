@@ -4,6 +4,7 @@ import 'config/supabase_config.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'services/auth_service.dart';
+import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -12,6 +13,9 @@ void main() async {
 
   // Initialize locale for date formatting
   await initializeDateFormatting('id_ID');
+
+  // Initialize notification service
+  await NotificationService().initialize();
 
   runApp(const MyApp());
 }
