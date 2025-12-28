@@ -8,11 +8,18 @@ import '../../theme/app_theme.dart';
 import '../zakat/zakat_list_screen.dart';
 import '../auth/login_screen.dart';
 import '../jadwal/jadwal_screen.dart';
-import '../menu_buka/menu_screen.dart';
+import '../menu_buka/takjil_screen.dart';
+import '../../services/takjil_service.dart';
+import '../../services/hijri_service.dart';
+import '../../models/takjil_donor.dart';
 import '../masjid/profil_masjid_screen.dart';
 import '../qibla/qibla_screen.dart';
 import '../settings/reminder_settings_screen.dart';
 import '../calendar/hijri_calendar_screen.dart';
+import '../imsakiyah/imsakiyah_screen.dart';
+import '../tarawih/tarawih_screen.dart';
+import '../kajian/kajian_screen.dart';
+import '../infaq/infaq_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/prayer_times_service.dart';
 import '../../services/location_service.dart';
@@ -39,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final AuthService _authService = AuthService();
   final PrayerTimesService _prayerService = PrayerTimesService();
   final LocationService _locationService = LocationService();
+  final TakjilService _takjilService = TakjilService();
   late bool _isAdmin;
   
   // Prayer time state
@@ -46,6 +54,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _nextPrayerTime = '18:02';
   Duration _timeRemaining = const Duration(hours: 2, minutes: 15);
   Timer? _countdownTimer;
+  
+  // Takjil state
+  List<TakjilDonor> _todayTakjilDonors = [];
+  List<TakjilDonor> _tomorrowTakjilDonors = [];
+  int _currentRamadanDay = 0;
   
   // Animation controllers
   late AnimationController _pulseController;
@@ -72,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     
     // Load prayer times and start countdown
     _loadPrayerTimes();
+    _loadTakjilData();
   }
 
   @override
@@ -150,6 +164,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     } catch (e) {
       // Use default values
+    }
+  }
+
+  Future<void> _loadTakjilData() async {
+    try {
+      final now = DateTime.now();
+      final hijriDate = HijriService.gregorianToHijri(now);
+      
+      int displayDay;
+      
+      // Check if currently in Ramadan (month 9)
+      if (hijriDate.month == 9 && hijriDate.day >= 1 && hijriDate.day <= 30) {
+        displayDay = hijriDate.day;
+      } else {
+        // Outside Ramadan - use day 1 for demo/preview
+        displayDay = 1;
+      }
+      
+      final todayDonors = await _takjilService.getTodayDonors(displayDay);
+      final tomorrowDay = displayDay < 30 ? displayDay + 1 : 1;
+      final tomorrowDonors = await _takjilService.getTodayDonors(tomorrowDay);
+      
+      if (mounted) {
+        setState(() {
+          _currentRamadanDay = displayDay;
+          _todayTakjilDonors = todayDonors;
+          _tomorrowTakjilDonors = tomorrowDonors;
+        });
+      }
+    } catch (e) {
+      // Silently fail - takjil section just won't show
     }
   }
 
@@ -247,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildPrayerCountdown(),
-                _buildQuickStats(),
+                _buildTakjilCard(),
                 _buildSectionTitle('Layanan Utama'),
                 _buildFeatureGrid(),
                 const SizedBox(height: 32),
@@ -592,100 +637,162 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQuickStats() {
+  Widget _buildTakjilCard() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [const Color(0xFF5E35B1), const Color(0xFF7E57C2)],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF5E35B1).withValues(alpha: 0.35),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.calendar_today_rounded,
-                value: '30',
-                label: 'Hari Puasa',
-                color: AppColors.teal,
-                delay: 600,
-              ),
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.restaurant_menu_rounded,
+                    color: AppColors.white,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Donatur Takjil',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.restaurant_menu_rounded,
-                value: '4',
-                label: 'Menu Buka',
-                color: AppColors.gold,
-                delay: 700,
-              ),
+            const SizedBox(height: 20),
+            
+            // Today's donors
+            _buildDonorSection(
+              title: 'Hari ini${_currentRamadanDay > 0 ? " (Hari ke-$_currentRamadanDay)" : ""}',
+              donors: _todayTakjilDonors,
+              isToday: true,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.mosque_rounded,
-                value: '5',
-                label: 'Waktu Sholat',
-                color: AppColors.indigo,
-                delay: 800,
-              ),
+            
+            const SizedBox(height: 16),
+            
+            // Divider
+            Container(
+              height: 1,
+              color: AppColors.white.withValues(alpha: 0.15),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Tomorrow's donors
+            _buildDonorSection(
+              title: 'Besok${_currentRamadanDay > 0 && _currentRamadanDay < 30 ? " (Hari ke-${_currentRamadanDay + 1})" : ""}',
+              donors: _tomorrowTakjilDonors,
+              isToday: false,
             ),
           ],
         ),
       ),
-    );
+    ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2);
   }
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-    required int delay,
+  Widget _buildDonorSection({
+    required String title,
+    required List<TakjilDonor> donors,
+    required bool isToday,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              isToday ? Icons.today_rounded : Icons.event_rounded,
+              color: isToday ? AppColors.gold : AppColors.white.withValues(alpha: 0.7),
+              size: 16,
             ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: isToday ? AppColors.gold : AppColors.white.withValues(alpha: 0.8),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (donors.isEmpty)
           Text(
-            value,
+            'Belum ada donatur terdaftar',
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+              color: AppColors.white.withValues(alpha: 0.5),
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
             ),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: donors.map((donor) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: isToday 
+                    ? AppColors.white.withValues(alpha: 0.25)
+                    : AppColors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isToday 
+                      ? AppColors.gold.withValues(alpha: 0.5)
+                      : AppColors.white.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.person_rounded,
+                    color: isToday ? AppColors.gold : AppColors.white.withValues(alpha: 0.7),
+                    size: 14,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    donor.donorName,
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 12,
+                      fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            )).toList(),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: delay.ms).scale(begin: const Offset(0.9, 0.9));
+      ],
+    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -722,24 +829,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildFeatureGrid() {
     final features = [
-      if (_isAdmin)
-        _FeatureItem(
-          title: 'Pencatatan Zakat',
-          subtitle: 'Kelola donasi & zakat',
-          icon: Icons.payments_rounded,
-          gradient: [const Color(0xFF43A047), const Color(0xFF66BB6A)],
-          onTap: () {},
-          page: const ZakatListScreen(isAdmin: true),
-          heroTag: 'hero_zakat_admin',
-        ),
       _FeatureItem(
-        title: 'Laporan Zakat',
-        subtitle: 'Transparansi keuangan',
-        icon: Icons.account_balance_wallet_rounded,
-        gradient: [const Color(0xFF00897B), const Color(0xFF26A69A)],
+        title: _isAdmin ? 'Pencatatan Zakat' : 'Laporan Zakat',
+        subtitle: _isAdmin ? 'Kelola donasi & zakat' : 'Transparansi keuangan',
+        icon: _isAdmin ? Icons.payments_rounded : Icons.account_balance_wallet_rounded,
+        gradient: _isAdmin 
+            ? [const Color(0xFF43A047), const Color(0xFF66BB6A)]
+            : [const Color(0xFF00897B), const Color(0xFF26A69A)],
         onTap: () {},
-        page: const ZakatListScreen(isAdmin: false),
-        heroTag: 'hero_zakat_user',
+        page: ZakatListScreen(isAdmin: _isAdmin),
+        heroTag: 'hero_zakat',
       ),
       _FeatureItem(
         title: 'Jadwal Sholat',
@@ -751,19 +850,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         heroTag: 'hero_jadwal_icon',
       ),
       _FeatureItem(
-        title: 'Menu Buka',
-        subtitle: 'Makanan berbuka puasa',
+        title: 'Jadwal Takjil',
+        subtitle: 'Donatur buka puasa',
         icon: Icons.restaurant_rounded,
         gradient: [const Color(0xFF5E35B1), const Color(0xFF7E57C2)],
         onTap: () {},
-        page: const MenuScreen(),
+        page: const TakjilScreen(),
         heroTag: 'hero_menu_icon',
+      ),
+      _FeatureItem(
+        title: 'Imsakiyah',
+        subtitle: 'Jadwal puasa sebulan',
+        icon: Icons.calendar_view_month_rounded,
+        gradient: [const Color(0xFF1565C0), const Color(0xFF1E88E5)],
+        onTap: () {},
+        page: const ImsakiyahScreen(),
+        heroTag: 'hero_imsakiyah_icon',
+      ),
+      _FeatureItem(
+        title: 'Jadwal Tarawih',
+        subtitle: 'Info imam & waktu',
+        icon: Icons.nights_stay_rounded,
+        gradient: [const Color(0xFF00695C), const Color(0xFF00897B)],
+        onTap: () {},
+        page: const TarawihScreen(),
+        heroTag: 'hero_tarawih_icon',
+      ),
+      _FeatureItem(
+        title: 'Jadwal Kajian',
+        subtitle: 'Kultum & ceramah',
+        icon: Icons.menu_book_rounded,
+        gradient: [const Color(0xFF7B1FA2), const Color(0xFF9C27B0)],
+        onTap: () {},
+        page: const KajianScreen(),
+        heroTag: 'hero_kajian_icon',
+      ),
+      _FeatureItem(
+        title: 'Infaq Ramadan',
+        subtitle: 'Progress donasi',
+        icon: Icons.volunteer_activism_rounded,
+        gradient: [const Color(0xFFB8962F), const Color(0xFFD4AF37)],
+        onTap: () {},
+        page: const InfaqScreen(),
+        heroTag: 'hero_infaq_icon',
       ),
       _FeatureItem(
         title: 'Profil Masjid',
         subtitle: 'Info & fasilitas',
         icon: Icons.mosque_rounded,
-        gradient: [const Color(0xFFB8962F), const Color(0xFFD4AF37)],
+        gradient: [const Color(0xFF455A64), const Color(0xFF607D8B)],
         onTap: () {},
         page: const ProfilMasjidScreen(),
         heroTag: 'hero_masjid_icon',
