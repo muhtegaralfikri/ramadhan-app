@@ -119,10 +119,13 @@ class ProfilMasjidScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.mosque_rounded,
-                          size: 50,
-                          color: AppColors.white,
+                        child: const Hero(
+                          tag: 'hero_masjid_icon',
+                          child: Icon(
+                            Icons.mosque_rounded,
+                            size: 50,
+                            color: AppColors.white,
+                          ),
                         ),
                       ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                       const SizedBox(height: 16),

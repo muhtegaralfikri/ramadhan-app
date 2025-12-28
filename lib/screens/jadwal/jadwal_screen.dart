@@ -202,91 +202,92 @@ class _JadwalScreenState extends State<JadwalScreen> {
               ),
               // Content
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+                child: Center(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.gold.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          color: AppColors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.gold.withValues(alpha: 0.3),
+                            color: AppColors.white.withValues(alpha: 0.3),
+                            width: 2,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.access_time_rounded,
-                              color: AppColors.gold,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Waktu Sholat',
-                              style: TextStyle(
-                                color: AppColors.gold,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryDark.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                      ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.2),
+                        child: Hero(
+                          tag: 'hero_jadwal_icon',
+                          child: Icon(
+                            Icons.access_time_filled_rounded,
+                            size: 40,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                       const SizedBox(height: 12),
                       Text(
                         'Jadwal Sholat',
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),
-                      ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
+                      ).animate().fadeIn(delay: 300.ms),
                       const SizedBox(height: 8),
                       // Location badge
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.location_on_rounded,
-                              color: AppColors.white,
-                              size: 14,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              _locationName,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.white.withValues(alpha: 0.9),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              child: Icon(
+                                Icons.location_on_rounded,
+                                color: AppColors.white,
+                                size: 14,
+                              ),
                             ),
-                          ),
-                          if (!_isLoading && _errorMessage == null)
-                            GestureDetector(
-                              onTap: _initLocation,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: Icon(
-                                  Icons.refresh_rounded,
-                                  color: AppColors.white.withValues(alpha: 0.7),
-                                  size: 16,
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                _locationName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.white.withValues(alpha: 0.9),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (!_isLoading && _errorMessage == null)
+                              GestureDetector(
+                                onTap: _initLocation,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Icon(
+                                    Icons.refresh_rounded,
+                                    color: AppColors.white.withValues(alpha: 0.7),
+                                    size: 16,
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
-                      ).animate().fadeIn(delay: 300.ms),
+                          ],
+                        ),
+                      ).animate().fadeIn(delay: 400.ms),
                     ],
                   ),
                 ),

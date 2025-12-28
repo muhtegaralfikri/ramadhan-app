@@ -224,61 +224,58 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                 ),
               ),
               // Content
+              // Content
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 50, 20, 20), // Reduced top padding
+                child: Center(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.gold.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          color: AppColors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.gold.withValues(alpha: 0.3),
+                            color: AppColors.white.withValues(alpha: 0.3),
+                            width: 2,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              widget.isAdmin ? Icons.edit_note_rounded : Icons.account_balance_wallet_rounded,
-                              color: AppColors.gold,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              widget.isAdmin ? 'Admin Mode' : 'Laporan',
-                              style: TextStyle(
-                                color: AppColors.gold,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryDark.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                      ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.2),
+                        child: Hero(
+                          tag: widget.isAdmin ? 'hero_zakat_admin' : 'hero_zakat_user',
+                          child: Icon(
+                            widget.isAdmin ? Icons.edit_note_rounded : Icons.account_balance_wallet_rounded,
+                            size: 40,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                       const SizedBox(height: 12),
                       Text(
-                        widget.isAdmin ? 'Pencatatan Zakat' : 'Total Zakat', // Shortened text
+                        widget.isAdmin ? 'Pencatatan Zakat' : 'Total Zakat',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),
-                      ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
-                      const SizedBox(height: 8),
+                      ).animate().fadeIn(delay: 300.ms),
+                      const SizedBox(height: 4),
                       Text(
                         _currencyFormatter.format(totalZakat),
                         style: TextStyle(
-                          fontSize: 28, // Reduced font size
+                          fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: AppColors.gold,
                           letterSpacing: 0.5,
                         ),
-                      ).animate().fadeIn(delay: 300.ms).scale(begin: const Offset(0.9, 0.9)),
+                      ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.9, 0.9)),
                     ],
                   ),
                 ),

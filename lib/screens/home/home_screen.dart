@@ -695,35 +695,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           subtitle: 'Kelola donasi & zakat',
           icon: Icons.payments_rounded,
           gradient: [const Color(0xFF43A047), const Color(0xFF66BB6A)],
-          onTap: () => _navigateTo(const ZakatListScreen(isAdmin: true)),
+          onTap: () {},
+          page: const ZakatListScreen(isAdmin: true),
+          heroTag: 'hero_zakat_admin',
         ),
       _FeatureItem(
         title: 'Laporan Zakat',
         subtitle: 'Transparansi keuangan',
         icon: Icons.account_balance_wallet_rounded,
         gradient: [const Color(0xFF00897B), const Color(0xFF26A69A)],
-        onTap: () => _navigateTo(const ZakatListScreen(isAdmin: false)),
+        onTap: () {},
+        page: const ZakatListScreen(isAdmin: false),
+        heroTag: 'hero_zakat_user',
       ),
       _FeatureItem(
         title: 'Jadwal Sholat',
         subtitle: 'Waktu sholat hari ini',
         icon: Icons.schedule_rounded,
         gradient: [const Color(0xFF1976D2), const Color(0xFF42A5F5)],
-        onTap: () => _navigateTo(const JadwalScreen()),
+        onTap: () {},
+        page: const JadwalScreen(),
+        heroTag: 'hero_jadwal_icon',
       ),
       _FeatureItem(
         title: 'Menu Buka',
         subtitle: 'Makanan berbuka puasa',
         icon: Icons.restaurant_rounded,
         gradient: [const Color(0xFF5E35B1), const Color(0xFF7E57C2)],
-        onTap: () => _navigateTo(const MenuScreen()),
+        onTap: () {},
+        page: const MenuScreen(),
+        heroTag: 'hero_menu_icon',
       ),
       _FeatureItem(
         title: 'Profil Masjid',
         subtitle: 'Info & fasilitas',
         icon: Icons.mosque_rounded,
         gradient: [const Color(0xFFB8962F), const Color(0xFFD4AF37)],
-        onTap: () => _navigateTo(const ProfilMasjidScreen()),
+        onTap: () {},
+        page: const ProfilMasjidScreen(),
+        heroTag: 'hero_masjid_icon',
       ),
     ];
 
@@ -905,7 +915,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required int delay,
   }) {
     return GestureDetector(
-      onTap: feature.onTap,
+      onTap: () => _navigateTo(feature.page),
       child: AspectRatio(
         aspectRatio: 1.3,
         child: Container(
@@ -963,10 +973,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         color: AppColors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        feature.icon,
-                        color: AppColors.white,
-                        size: 22,
+                      child: Hero(
+                        tag: feature.heroTag,
+                        child: Icon(
+                          feature.icon,
+                          color: AppColors.white,
+                          size: 22,
+                        ),
                       ),
                     ),
                     const Spacer(),
@@ -1064,7 +1077,11 @@ class _FeatureItem {
     required this.icon,
     required this.gradient,
     required this.onTap,
+    required this.page,
+    required this.heroTag,
   });
+  final Widget page;
+  final String heroTag;
 }
 
 // Custom painter for Islamic geometric pattern

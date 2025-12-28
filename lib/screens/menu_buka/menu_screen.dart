@@ -130,55 +130,56 @@ class MenuScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              // Content
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+                child: Center(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.gold.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          color: AppColors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.gold.withValues(alpha: 0.3),
+                            color: AppColors.white.withValues(alpha: 0.3),
+                            width: 2,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.restaurant_rounded, color: AppColors.gold, size: 16),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Takjil & Buka Puasa',
-                              style: TextStyle(
-                                color: AppColors.gold,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryDark.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                      ).animate().fadeIn(delay: 100.ms).slideX(begin: -0.2),
+                        child: Hero(
+                          tag: 'hero_menu_icon',
+                          child: Icon(
+                            Icons.restaurant_menu_rounded,
+                            size: 40,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
                       const SizedBox(height: 12),
                       Text(
                         'Menu Buka Puasa',
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),
-                      ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
-                      const SizedBox(height: 8),
+                      ).animate().fadeIn(delay: 300.ms),
+                      const SizedBox(height: 4),
                       Text(
                         '${_menus.length} lokasi tersedia',
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.white.withValues(alpha: 0.8),
                         ),
-                      ).animate().fadeIn(delay: 300.ms),
+                      ).animate().fadeIn(delay: 400.ms),
                     ],
                   ),
                 ),
