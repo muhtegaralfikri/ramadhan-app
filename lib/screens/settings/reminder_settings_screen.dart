@@ -19,8 +19,10 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
 
   bool _sahurEnabled = true;
   bool _iftarEnabled = true;
+  bool _prayerEnabled = false;
   int _sahurMinutes = 30;
   int _iftarMinutes = 10;
+  int _prayerMinutes = 15;
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -37,8 +39,10 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
     
     _sahurEnabled = await _notificationService.isSahurReminderEnabled();
     _iftarEnabled = await _notificationService.isIftarReminderEnabled();
+    _prayerEnabled = await _notificationService.isPrayerReminderEnabled();
     _sahurMinutes = await _notificationService.getSahurMinutesBefore();
     _iftarMinutes = await _notificationService.getIftarMinutesBefore();
+    _prayerMinutes = await _notificationService.getPrayerMinutesBefore();
     
     setState(() => _isLoading = false);
   }
@@ -64,8 +68,10 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
     // Save preferences
     await _notificationService.setSahurReminderEnabled(_sahurEnabled);
     await _notificationService.setIftarReminderEnabled(_iftarEnabled);
+    await _notificationService.setPrayerReminderEnabled(_prayerEnabled);
     await _notificationService.setSahurMinutesBefore(_sahurMinutes);
     await _notificationService.setIftarMinutesBefore(_iftarMinutes);
+    await _notificationService.setPrayerMinutesBefore(_prayerMinutes);
 
     // Schedule notifications based on prayer times
     await _scheduleNotifications();
@@ -147,6 +153,28 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
           maghribTime: maghribDateTime,
           minutesBefore: _iftarMinutes,
         );
+      }
+
+      // Schedule prayer reminders for all 5 prayers
+      if (_prayerEnabled) {
+        for (final prayer in prayers) {
+          final name = prayer['name'] as String?;
+          final time = prayer['time'] as String?;
+          if (name != null && time != null && name != 'Imsak' && name != 'Terbit') {
+            final parts = time.split(':');
+            final prayerDateTime = DateTime(
+              now.year, now.month, now.day,
+              int.parse(parts[0]), int.parse(parts[1]),
+            );
+            await _notificationService.schedulePrayerReminder(
+              prayerName: name,
+              prayerTime: prayerDateTime,
+              minutesBefore: _prayerMinutes,
+            );
+          }
+        }
+      } else {
+        await _notificationService.cancelAllPrayerReminders();
       }
     } catch (e) {
       // Handle error silently
@@ -281,6 +309,20 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
             onToggle: (value) => setState(() => _iftarEnabled = value),
             onMinutesChanged: (value) => setState(() => _iftarMinutes = value),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+          
+          const SizedBox(height: 16),
+          
+          // Prayer Time Reminder Card
+          _buildReminderCard(
+            title: 'Pengingat Sholat',
+            subtitle: 'Ingatkan sebelum semua waktu sholat',
+            icon: Icons.access_time_rounded,
+            iconColor: const Color(0xFF2E7D32),
+            enabled: _prayerEnabled,
+            minutes: _prayerMinutes,
+            onToggle: (value) => setState(() => _prayerEnabled = value),
+            onMinutesChanged: (value) => setState(() => _prayerMinutes = value),
+          ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
           
           const SizedBox(height: 32),
           
