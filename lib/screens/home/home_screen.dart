@@ -328,9 +328,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 const SizedBox(height: 16),
                                 // Greeting
                                 Text(
-                                  _isAdmin ? 'Halo, Admin' : 'Assalamu\'alaikum',
+                                  _isAdmin ? 'Assalamu\'alaikum, Admin' : 'Assalamu\'alaikum',
                                   style: const TextStyle(
-                                    fontSize: 28,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.white,
                                     height: 1.2,
@@ -562,38 +562,41 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildQuickStats() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.calendar_today_rounded,
-              value: '30',
-              label: 'Hari Puasa',
-              color: AppColors.teal,
-              delay: 600,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.calendar_today_rounded,
+                value: '30',
+                label: 'Hari Puasa',
+                color: AppColors.teal,
+                delay: 600,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.restaurant_menu_rounded,
-              value: '4',
-              label: 'Menu Buka',
-              color: AppColors.gold,
-              delay: 700,
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.restaurant_menu_rounded,
+                value: '4',
+                label: 'Menu Buka',
+                color: AppColors.gold,
+                delay: 700,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.mosque_rounded,
-              value: '5',
-              label: 'Waktu Sholat',
-              color: AppColors.indigo,
-              delay: 800,
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                icon: Icons.mosque_rounded,
+                value: '5',
+                label: 'Waktu Sholat',
+                color: AppColors.indigo,
+                delay: 800,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
