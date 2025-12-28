@@ -391,37 +391,29 @@ class ProfilMasjidScreen extends StatelessWidget {
     required Color color,
     required int delay,
   }) {
+    // Unified gray styling as requested
+    const grayColor = Color(0xFF607D8B); // Blue Grey
+    const backgroundColor = Color(0xFFF5F5F5); // Very Light Gray
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color.withValues(alpha: 0.15),
-            color.withValues(alpha: 0.05),
-          ],
-        ),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withValues(alpha: 0.3),
+          color: Colors.grey.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: color),
-          ),
+          Icon(icon, size: 18, color: grayColor),
           const SizedBox(width: 8),
           Text(
             name,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
-              color: color,
+              color: grayColor,
               fontWeight: FontWeight.w600,
             ),
           ),

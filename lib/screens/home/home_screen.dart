@@ -641,19 +641,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [const Color(0xFF5E35B1), const Color(0xFF7E57C2)],
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF5E35B1).withValues(alpha: 0.35),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: const Color(0xFF5E35B1).withValues(alpha: 0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -664,51 +664,48 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: AppColors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.restaurant_menu_rounded,
                     color: AppColors.white,
-                    size: 22,
+                    size: 18,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 const Text(
                   'Donatur Takjil',
                   style: TextStyle(
                     color: AppColors.white,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             
-            // Today's donors
-            _buildDonorSection(
-              title: 'Hari ini${_currentRamadanDay > 0 ? " (Hari ke-$_currentRamadanDay)" : ""}',
-              donors: _todayTakjilDonors,
+            // Compact rows
+            _buildCompactDonorRow(
+              'Hari Ini',
+              _todayTakjilDonors,
               isToday: true,
             ),
             
-            const SizedBox(height: 16),
-            
-            // Divider
-            Container(
-              height: 1,
-              color: AppColors.white.withValues(alpha: 0.15),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Divider(
+                height: 1,
+                color: AppColors.white.withValues(alpha: 0.15),
+              ),
             ),
             
-            const SizedBox(height: 16),
-            
-            // Tomorrow's donors
-            _buildDonorSection(
-              title: 'Besok${_currentRamadanDay > 0 && _currentRamadanDay < 30 ? " (Hari ke-${_currentRamadanDay + 1})" : ""}',
-              donors: _tomorrowTakjilDonors,
+            _buildCompactDonorRow(
+              'Besok',
+              _tomorrowTakjilDonors,
               isToday: false,
             ),
           ],
@@ -717,80 +714,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2);
   }
 
-  Widget _buildDonorSection({
-    required String title,
-    required List<TakjilDonor> donors,
-    required bool isToday,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildCompactDonorRow(String label, List<TakjilDonor> donors, {required bool isToday}) {
+    final names = donors.isEmpty 
+        ? '-' 
+        : donors.map((d) => d.donorName).take(3).join(', ') + (donors.length > 3 ? ', ...' : '');
+
+    return Row(
       children: [
-        Row(
-          children: [
-            Icon(
-              isToday ? Icons.today_rounded : Icons.event_rounded,
-              color: isToday ? AppColors.gold : AppColors.white.withValues(alpha: 0.7),
-              size: 16,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color: isToday ? AppColors.gold : AppColors.white.withValues(alpha: 0.8),
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        if (donors.isEmpty)
-          Text(
-            'Belum ada donatur terdaftar',
+        SizedBox(
+          width: 70,
+          child: Text(
+            label,
             style: TextStyle(
-              color: AppColors.white.withValues(alpha: 0.5),
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
+              color: AppColors.white.withValues(alpha: 0.7),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
-          )
-        else
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: donors.map((donor) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: isToday 
-                    ? AppColors.white.withValues(alpha: 0.25)
-                    : AppColors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isToday 
-                      ? AppColors.gold.withValues(alpha: 0.5)
-                      : AppColors.white.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.person_rounded,
-                    color: isToday ? AppColors.gold : AppColors.white.withValues(alpha: 0.7),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    donor.donorName,
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 12,
-                      fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            )).toList(),
           ),
+        ),
+        Expanded(
+          child: Text(
+            names,
+            style: TextStyle(
+              color: isToday ? AppColors.gold : AppColors.white,
+              fontSize: 14,
+              fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
+            ),
+            textAlign: TextAlign.right,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
