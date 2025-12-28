@@ -33,11 +33,15 @@ class _KajianScreenState extends State<KajianScreen> {
     
     try {
       final isLoggedIn = _authService.isLoggedIn;
+      
+      if (mounted) {
+        setState(() => _isAdmin = isLoggedIn);
+      }
+
       final kajian = await _kajianService.getAllKajian();
       
       if (mounted) {
         setState(() {
-          _isAdmin = isLoggedIn;
           _kajianList = kajian;
           _isLoading = false;
         });
@@ -344,34 +348,71 @@ class _KajianScreenState extends State<KajianScreen> {
     final descController = TextEditingController(text: kajian?.description ?? '');
     DateTime selectedDate = kajian?.date ?? DateTime.now();
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(kajian != null ? 'Edit Kajian' : 'Tambah Kajian'),
-          content: SingleChildScrollView(
+        builder: (context, setSheetState) => Container(
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            24, 
+            20, 
+            24, 
+            MediaQuery.of(context).viewInsets.bottom + 24
+          ),
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
+                // Drag Handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                Text(
+                  kajian != null ? 'Edit Jadwal Kajian' : 'Tambah Kajian Baru',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF7B1FA2),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Title Input
+                _buildModernTextField(
                   controller: titleController,
-                  decoration: InputDecoration(
-                    labelText: 'Judul Kajian *',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.title),
-                  ),
+                  label: 'Tema/Judul Kajian *',
+                  icon: Icons.menu_book,
+                  hint: 'Contoh: Fiqih Puasa',
+                  color: const Color(0xFF7B1FA2),
                 ),
                 const SizedBox(height: 16),
-                TextField(
+
+                // Speaker Input
+                _buildModernTextField(
                   controller: speakerController,
-                  decoration: InputDecoration(
-                    labelText: 'Pemateri/Ustadz',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.person),
-                  ),
+                  label: 'Penceramah',
+                  icon: Icons.person_rounded,
+                  hint: 'Contoh: Ustadz Hanan Attaki',
+                  color: const Color(0xFF7B1FA2),
                 ),
                 const SizedBox(height: 16),
+
+                // Date Picker Field
                 InkWell(
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -379,104 +420,174 @@ class _KajianScreenState extends State<KajianScreen> {
                       initialDate: selectedDate,
                       firstDate: DateTime.now().subtract(const Duration(days: 30)),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: Color(0xFF7B1FA2),
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
                     );
                     if (picked != null) {
-                      setDialogState(() => selectedDate = picked);
+                      setSheetState(() => selectedDate = picked);
                     }
                   },
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: 'Tanggal',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      prefixIcon: const Icon(Icons.calendar_today),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
                     ),
-                    child: Text(DateFormat('d MMMM yyyy', 'id_ID').format(selectedDate)),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today_rounded, color: Color(0xFF7B1FA2)),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Tanggal', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                            Text(
+                              DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(selectedDate),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: timeController,
-                  decoration: InputDecoration(
-                    labelText: 'Waktu',
-                    hintText: 'Contoh: 19:30',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.access_time),
-                  ),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildModernTextField(
+                        controller: timeController,
+                        label: 'Waktu',
+                        icon: Icons.access_time_filled_rounded,
+                        hint: '19:30',
+                        color: const Color(0xFF7B1FA2),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildModernTextField(
+                        controller: locationController,
+                        label: 'Lokasi',
+                        icon: Icons.location_on_rounded,
+                        hint: 'Masjid Utama',
+                        color: const Color(0xFF7B1FA2),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: locationController,
-                  decoration: InputDecoration(
-                    labelText: 'Lokasi',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.location_on),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
+
+                // Description Input
+                _buildModernTextField(
                   controller: descController,
-                  decoration: InputDecoration(
-                    labelText: 'Deskripsi',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                  label: 'Catatan / Deskripsi',
+                  icon: Icons.notes_rounded,
+                  color: const Color(0xFF7B1FA2),
                   maxLines: 2,
                 ),
+                const SizedBox(height: 32),
+
+                // Action Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (titleController.text.trim().isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Judul wajib diisi')),
+                        );
+                        return;
+                      }
+                      
+                      Navigator.pop(context);
+
+                      final newKajian = Kajian(
+                        id: kajian?.id ?? const Uuid().v4(),
+                        title: titleController.text.trim(),
+                        speaker: speakerController.text.trim().isEmpty ? null : speakerController.text.trim(),
+                        date: selectedDate,
+                        time: timeController.text.trim().isEmpty ? null : timeController.text.trim(),
+                        location: locationController.text.trim().isEmpty ? null : locationController.text.trim(),
+                        description: descController.text.trim().isEmpty ? null : descController.text.trim(),
+                        createdAt: kajian?.createdAt ?? DateTime.now(),
+                      );
+                      
+                      try {
+                        if (kajian != null) {
+                          await _kajianService.updateKajian(newKajian);
+                        } else {
+                          await _kajianService.addKajian(newKajian);
+                        }
+                        if (mounted) {
+                          _loadData();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Kajian berhasil disimpan'), 
+                              backgroundColor: Color(0xFF7B1FA2),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Gagal: $e'), backgroundColor: AppColors.error),
+                          );
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7B1FA2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 4,
+                    ),
+                    child: const Text('Simpan Kajian', style: TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (titleController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Judul harus diisi')),
-                  );
-                  return;
-                }
-                
-                final newKajian = Kajian(
-                  id: kajian?.id ?? const Uuid().v4(),
-                  title: titleController.text.trim(),
-                  speaker: speakerController.text.trim().isEmpty ? null : speakerController.text.trim(),
-                  date: selectedDate,
-                  time: timeController.text.trim().isEmpty ? null : timeController.text.trim(),
-                  location: locationController.text.trim().isEmpty ? null : locationController.text.trim(),
-                  description: descController.text.trim().isEmpty ? null : descController.text.trim(),
-                  createdAt: kajian?.createdAt ?? DateTime.now(),
-                );
-                
-                try {
-                  if (kajian != null) {
-                    await _kajianService.updateKajian(newKajian);
-                  } else {
-                    await _kajianService.addKajian(newKajian);
-                  }
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadData();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Kajian berhasil disimpan'), backgroundColor: Color(0xFF7B1FA2)),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Gagal: $e'), backgroundColor: AppColors.error),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7B1FA2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Simpan', style: TextStyle(color: AppColors.white)),
-            ),
-          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? hint,
+    Color? color,
+    int maxLines = 1,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          prefixIcon: Icon(icon, color: color ?? AppColors.primary),
         ),
       ),
     );

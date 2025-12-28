@@ -365,15 +365,15 @@ class _TakjilScreenState extends State<TakjilScreen> {
   Widget _buildAddFAB(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primaryDark],
+          colors: [Color(0xFF5E35B1), Color(0xFF7E57C2)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.4),
+            color: const Color(0xFF5E35B1).withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -451,7 +451,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: Color(0xFF5E35B1),
                 ),
               ),
               const SizedBox(height: 24),
@@ -469,7 +469,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                     labelText: 'Pilih Hari Ramadan',
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    prefixIcon: Icon(Icons.calendar_today_rounded, color: AppColors.primary),
+                    prefixIcon: Icon(Icons.calendar_today_rounded, color: Color(0xFF5E35B1)),
                   ),
                   items: List.generate(30, (i) => DropdownMenuItem(
                     value: i + 1,
@@ -525,9 +525,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                       return;
                     }
                     
-                    // Show loading if needed, or just await
-                    // Here straightforward implementation
-                    Navigator.pop(context); // Close sheet first/early or after? Close after.
+                    Navigator.pop(context);
                     
                     final donor = TakjilDonor(
                       id: const Uuid().v4(),
@@ -549,7 +547,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text('Alhamdulillah, donatur berhasil ditambahkan'),
-                            backgroundColor: AppColors.success,
+                            backgroundColor: const Color(0xFF5E35B1),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
@@ -567,8 +565,8 @@ class _TakjilScreenState extends State<TakjilScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                    backgroundColor: const Color(0xFF5E35B1),
+                    shadowColor: const Color(0xFF5E35B1).withValues(alpha: 0.4),
                     elevation: 4,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
@@ -612,7 +610,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
           hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          prefixIcon: Icon(icon, color: AppColors.primary),
+          prefixIcon: Icon(icon, color: const Color(0xFF5E35B1)),
         ),
       ),
     );
@@ -651,8 +649,8 @@ class _TakjilScreenState extends State<TakjilScreen> {
             const SizedBox(height: 16),
             ...donors.map((donor) => ListTile(
               leading: CircleAvatar(
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                child: const Icon(Icons.person, color: AppColors.primary),
+                backgroundColor: const Color(0xFF5E35B1).withValues(alpha: 0.1),
+                child: const Icon(Icons.person, color: Color(0xFF5E35B1)),
               ),
               title: Text(donor.donorName),
               subtitle: donor.description != null ? Text(donor.description!) : null,

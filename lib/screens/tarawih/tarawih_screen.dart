@@ -34,6 +34,11 @@ class _TarawihScreenState extends State<TarawihScreen> {
     
     try {
       final isLoggedIn = _authService.isLoggedIn;
+      
+      if (mounted) {
+        setState(() => _isAdmin = isLoggedIn);
+      }
+
       final schedules = await _tarawihService.getSchedulesMap();
       
       final now = DateTime.now();
@@ -42,7 +47,6 @@ class _TarawihScreenState extends State<TarawihScreen> {
       
       if (mounted) {
         setState(() {
-          _isAdmin = isLoggedIn;
           _scheduleMap = schedules;
           _currentRamadanDay = currentDay;
           _isLoading = false;
@@ -370,123 +374,215 @@ class _TarawihScreenState extends State<TarawihScreen> {
     final imamController = TextEditingController(text: schedule?.imamName ?? '');
     final timeController = TextEditingController(text: schedule?.startTime ?? '19:30');
     final notesController = TextEditingController(text: schedule?.notes ?? '');
-    int selectedDay = day ?? 1;
+    int selectedDay = day ?? schedule?.ramadanDay ?? 1;
     int rakaat = schedule?.rakaat ?? 20;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(schedule != null ? 'Edit Jadwal Malam ke-$day' : 'Tambah Jadwal Tarawih'),
-          content: SingleChildScrollView(
+        builder: (context, setSheetState) => Container(
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            24, 
+            20, 
+            24, 
+            MediaQuery.of(context).viewInsets.bottom + 24
+          ),
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (day == null)
-                  DropdownButtonFormField<int>(
-                    value: selectedDay,
-                    decoration: InputDecoration(
-                      labelText: 'Malam ke-',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                // Drag Handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    items: List.generate(30, (i) => DropdownMenuItem(
-                      value: i + 1,
-                      child: Text('Malam ke-${i + 1}'),
-                    )),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                Text(
+                  schedule != null ? 'Edit Jadwal Tarawih' : 'Tambah Jadwal',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF00695C),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Day Selector
+                if (day == null && schedule == null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: DropdownButtonFormField<int>(
+                      value: selectedDay,
+                      decoration: const InputDecoration(
+                        labelText: 'Malam ke-',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      items: List.generate(30, (i) => DropdownMenuItem(
+                        value: i + 1,
+                        child: Text('Malam ke-${i + 1} Ramadan'),
+                      )),
+                      onChanged: (value) {
+                        if (value != null) setSheetState(() => selectedDay = value);
+                      },
+                    ),
+                  ),
+
+                // Imam Input
+                _buildModernTextField(
+                  controller: imamController,
+                  label: 'Nama Imam',
+                  icon: Icons.person_rounded,
+                  hint: 'Contoh: Ustadz Ahmad',
+                  color: const Color(0xFF00695C),
+                ),
+                const SizedBox(height: 16),
+
+                // Time Input
+                _buildModernTextField(
+                  controller: timeController,
+                  label: 'Waktu Mulai',
+                  icon: Icons.access_time_rounded,
+                  hint: '19:30',
+                  color: const Color(0xFF00695C),
+                ),
+                const SizedBox(height: 16),
+
+                // Rakaat Selector
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: DropdownButtonFormField<int>(
+                    value: rakaat,
+                    decoration: const InputDecoration(
+                      labelText: 'Jumlah Rakaat',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      prefixIcon: Icon(Icons.repeat_rounded, color: Color(0xFF00695C)),
+                    ),
+                    items: [8, 11, 20, 23].map((r) => DropdownMenuItem(
+                      value: r,
+                      child: Text('$r Rakaat'),
+                    )).toList(),
                     onChanged: (value) {
-                      if (value != null) setDialogState(() => selectedDay = value);
+                      if (value != null) setSheetState(() => rakaat = value);
                     },
                   ),
-                if (day == null) const SizedBox(height: 16),
-                TextField(
-                  controller: imamController,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Imam',
-                    hintText: 'Contoh: Ustadz Ahmad',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.person),
-                  ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: timeController,
-                  decoration: InputDecoration(
-                    labelText: 'Waktu Mulai',
-                    hintText: 'Contoh: 19:30',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.access_time),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
-                  value: rakaat,
-                  decoration: InputDecoration(
-                    labelText: 'Jumlah Rakaat',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: [8, 11, 20, 23].map((r) => DropdownMenuItem(
-                    value: r,
-                    child: Text('$r rakaat'),
-                  )).toList(),
-                  onChanged: (value) {
-                    if (value != null) setDialogState(() => rakaat = value);
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
+
+                // Notes Input
+                _buildModernTextField(
                   controller: notesController,
-                  decoration: InputDecoration(
-                    labelText: 'Catatan (opsional)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.note),
-                  ),
+                  label: 'Catatan (Opsional)',
+                  icon: Icons.note_alt_rounded,
+                  color: const Color(0xFF00695C),
                   maxLines: 2,
                 ),
+                const SizedBox(height: 32),
+
+                // Action Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      
+                      final newSchedule = TarawihSchedule(
+                        id: schedule?.id ?? const Uuid().v4(),
+                        ramadanDay: day ?? selectedDay,
+                        imamName: imamController.text.trim().isEmpty ? null : imamController.text.trim(),
+                        startTime: timeController.text.trim().isEmpty ? null : timeController.text.trim(),
+                        rakaat: rakaat,
+                        notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
+                        createdAt: schedule?.createdAt ?? DateTime.now(),
+                      );
+                      
+                      try {
+                        await _tarawihService.upsertSchedule(newSchedule);
+                        if (mounted) {
+                          _loadData();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Jadwal berhasil disimpan'), 
+                              backgroundColor: Color(0xFF00695C),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: AppColors.error),
+                          );
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00695C),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 4,
+                      shadowColor: const Color(0xFF00695C).withValues(alpha: 0.4),
+                    ),
+                    child: const Text('Simpan Data', style: TextStyle(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final newSchedule = TarawihSchedule(
-                  id: schedule?.id ?? const Uuid().v4(),
-                  ramadanDay: day ?? selectedDay,
-                  imamName: imamController.text.trim().isEmpty ? null : imamController.text.trim(),
-                  startTime: timeController.text.trim().isEmpty ? null : timeController.text.trim(),
-                  rakaat: rakaat,
-                  notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
-                  createdAt: schedule?.createdAt ?? DateTime.now(),
-                );
-                
-                try {
-                  await _tarawihService.upsertSchedule(newSchedule);
-                  if (mounted) {
-                    Navigator.pop(context);
-                    _loadData();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Jadwal berhasil disimpan'), backgroundColor: Color(0xFF00695C)),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: AppColors.error),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00695C),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Simpan', style: TextStyle(color: AppColors.white)),
-            ),
-          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? hint,
+    Color? color,
+    int maxLines = 1,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          prefixIcon: Icon(icon, color: color ?? AppColors.primary),
         ),
       ),
     );
