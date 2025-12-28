@@ -125,7 +125,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                 children: [
                   const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
@@ -134,7 +134,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                       tag: 'hero_hijri_icon',
                       child: Icon(
                         Icons.calendar_month_rounded,
-                        size: 40,
+                        size: 36,
                         color: AppColors.white,
                       ),
                     ),

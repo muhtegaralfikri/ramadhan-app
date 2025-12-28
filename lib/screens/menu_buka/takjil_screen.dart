@@ -141,7 +141,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                     children: [
                       const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -150,7 +150,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                           tag: 'hero_menu_icon',
                           child: Icon(
                             Icons.restaurant_menu_rounded,
-                            size: 40,
+                            size: 36,
                             color: AppColors.white,
                           ),
                         ),

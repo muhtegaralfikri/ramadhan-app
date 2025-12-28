@@ -32,7 +32,7 @@ class ProfilMasjidScreen extends StatelessWidget {
 
   Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 220,
+      expandedHeight: 200,
       floating: false,
       pinned: true,
       elevation: 0,
@@ -105,9 +105,9 @@ class ProfilMasjidScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -116,16 +116,16 @@ class ProfilMasjidScreen extends StatelessWidget {
                           tag: 'hero_masjid_icon',
                           child: Icon(
                             Icons.mosque_rounded,
-                            size: 50,
+                            size: 36,
                             color: AppColors.white,
                           ),
                         ),
                       ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.8, 0.8)),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Text(
                         'Profil Masjid',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),

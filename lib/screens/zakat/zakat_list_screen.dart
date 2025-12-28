@@ -238,7 +238,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                     children: [
                       const SizedBox(height: 10),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -247,7 +247,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                           tag: widget.isAdmin ? 'hero_zakat_admin' : 'hero_zakat_user',
                           child: Icon(
                             widget.isAdmin ? Icons.edit_note_rounded : Icons.account_balance_wallet_rounded,
-                            size: 40,
+                            size: 36,
                             color: AppColors.white,
                           ),
                         ),
@@ -256,7 +256,7 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
                       Text(
                         widget.isAdmin ? 'Pencatatan Zakat' : 'Total Zakat',
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),

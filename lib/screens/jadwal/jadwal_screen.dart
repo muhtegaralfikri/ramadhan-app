@@ -212,7 +212,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
                     children: [
                       const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -221,7 +221,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
                           tag: 'hero_jadwal_icon',
                           child: Icon(
                             Icons.access_time_filled_rounded,
-                            size: 40,
+                            size: 36,
                             color: AppColors.white,
                           ),
                         ),
@@ -230,7 +230,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
                       Text(
                         'Jadwal Sholat',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),

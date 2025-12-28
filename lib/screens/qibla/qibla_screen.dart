@@ -193,7 +193,7 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
                     children: [
                       const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -202,7 +202,7 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
                           tag: 'hero_qibla_icon',
                           child: Icon(
                             Icons.explore_rounded,
-                            size: 40,
+                            size: 36,
                             color: AppColors.white,
                           ),
                         ),
@@ -211,7 +211,7 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
                       Text(
                         'Kompas Kiblat',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
                         ),

@@ -246,7 +246,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                 children: [
                   const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
@@ -255,7 +255,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                       tag: 'hero_reminder_icon',
                       child: Icon(
                         Icons.notifications_active_rounded,
-                        size: 40,
+                        size: 36,
                         color: AppColors.white,
                       ),
                     ),
@@ -264,7 +264,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                   Text(
                     'Pengingat Puasa',
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: AppColors.white,
                     ),
