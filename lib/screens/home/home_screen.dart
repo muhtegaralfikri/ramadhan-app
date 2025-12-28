@@ -87,16 +87,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final position = await _locationService.getCurrentPosition();
       if (position == null) return;
       
+      final now = DateTime.now();
+      
       final prayerTimes = await _prayerService.getPrayerTimes(
         latitude: position.latitude,
         longitude: position.longitude,
-        date: DateTime.now(),
+        date: now,
       );
       
       if (prayerTimes != null && mounted) {
-        final now = DateTime.now();
         final prayers = prayerTimes.toList();
+        bool foundNext = false;
         
+        // Check today's prayers
         for (var prayer in prayers) {
           final time = prayer['time'];
           if (time != null) {
@@ -113,8 +116,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 _timeRemaining = prayerDateTime.difference(now);
               });
               _startCountdown(prayerDateTime);
+              foundNext = true;
               break;
             }
+          }
+        }
+        
+        // If all prayers today have passed, get tomorrow's Subuh
+        if (!foundNext) {
+          final tomorrow = now.add(const Duration(days: 1));
+          final tomorrowPrayerTimes = await _prayerService.getPrayerTimes(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            date: tomorrow,
+          );
+          
+          if (tomorrowPrayerTimes != null && mounted) {
+            final subuhTime = tomorrowPrayerTimes.subuh;
+            final parts = subuhTime.split(':');
+            final subuhDateTime = DateTime(
+              tomorrow.year, tomorrow.month, tomorrow.day,
+              int.parse(parts[0]), int.parse(parts[1]),
+            );
+            
+            setState(() {
+              _nextPrayer = 'Subuh';
+              _nextPrayerTime = subuhTime;
+              _timeRemaining = subuhDateTime.difference(now);
+            });
+            _startCountdown(subuhDateTime);
           }
         }
       }
