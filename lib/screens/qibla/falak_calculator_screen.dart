@@ -144,16 +144,8 @@ class _FalakCalculatorScreenState extends State<FalakCalculatorScreen> {
       isNegative: _isLngWest,
     );
 
-    // Debug: Print values to verify
-    debugPrint('=== FALAK CALCULATION DEBUG ===' );
-    debugPrint('Latitude: $latitude (${_isLatSouth ? "S" : "N"})');
-    debugPrint('Longitude: $longitude (${_isLngWest ? "W" : "E"})');
-    debugPrint('DMS Lat: $_latDegrees° $_latMinutes\' $_latSeconds"');
-    debugPrint('DMS Lng: $_lngDegrees° $_lngMinutes\' $_lngSeconds"');
-
     // Detect timezone based on longitude
     final timezoneOffset = _detectTimezone(longitude.abs());
-    debugPrint('Detected timezone: ${_getTimezoneLabel(timezoneOffset)} (UTC+$timezoneOffset)');
 
     // Combine date and time
     final dateTime = DateTime(
@@ -171,10 +163,6 @@ class _FalakCalculatorScreenState extends State<FalakCalculatorScreen> {
       dateTime: dateTime,
       timezoneOffset: timezoneOffset.toDouble(),
     );
-
-    debugPrint('Qibla Direction: ${results['qiblaDirection']}°');
-    debugPrint('Sun Azimuth: ${results['sunAzimuth']}°');
-    debugPrint('================================');
 
     setState(() {
       _results = results;

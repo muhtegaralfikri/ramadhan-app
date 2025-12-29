@@ -416,13 +416,6 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
     final rotationAngle = -(heading * math.pi / 180);
     final qiblaIndicatorAngle = ((qiblaAngle - heading) * math.pi / 180);
 
-    // Debug: Log compass values
-    debugPrint('=== COMPASS DEBUG ===');
-    debugPrint('Qibla Angle: $qiblaAngle°');
-    debugPrint('Current Heading: $heading°');
-    debugPrint('Qibla Indicator Angle: ${(qiblaAngle - heading)}° from top');
-    debugPrint('=====================');
-
     return Container(
       width: 280,
       height: 280,

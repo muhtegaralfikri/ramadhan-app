@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'package:flutter/foundation.dart';
 
 class FalakService {
   // Kaaba coordinates
@@ -36,11 +35,6 @@ class FalakService {
 
   /// Calculate Qibla direction from a location
   static double calculateQiblaDirection(double latitude, double longitude) {
-    // Debug input values
-    debugPrint('--- Qibla Calculation ---');
-    debugPrint('Input Lat: $latitude, Lon: $longitude');
-    debugPrint('Kaaba Lat: $kaabaLatitude, Lon: $kaabaLongitude');
-    
     final lat1 = latitude * math.pi / 180;
     final lon1 = longitude * math.pi / 180;
     final lat2 = kaabaLatitude * math.pi / 180;
@@ -50,14 +44,9 @@ class FalakService {
     final y = math.sin(dLon) * math.cos(lat2);
     final x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dLon);
     
-    debugPrint('dLon: ${dLon * 180 / math.pi}°, y: $y, x: $x');
-    
     var bearing = math.atan2(y, x);
     bearing = bearing * 180 / math.pi;
     bearing = (bearing + 360) % 360;
-
-    debugPrint('Final Qibla bearing: $bearing°');
-    debugPrint('-------------------------');
     
     return bearing;
   }
