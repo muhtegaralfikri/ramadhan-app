@@ -99,6 +99,33 @@ class _FalakCalculatorScreenState extends State<FalakCalculatorScreen> {
     }
   }
 
+  /// Detect timezone based on longitude for Indonesia
+  /// WIB (UTC+7): 95°-115° E (Sumatra, Java, West/Central Kalimantan)
+  /// WITA (UTC+8): 115°-135° E (East/South Kalimantan, Sulawesi, Bali, NTT, NTB)
+  /// WIT (UTC+9): 135°-141° E (Maluku, Papua)
+  int _detectTimezone(double longitude) {
+    if (longitude < 115) {
+      return 7; // WIB
+    } else if (longitude < 135) {
+      return 8; // WITA
+    } else {
+      return 9; // WIT
+    }
+  }
+
+  String _getTimezoneLabel(int offset) {
+    switch (offset) {
+      case 7:
+        return 'WIB';
+      case 8:
+        return 'WITA';
+      case 9:
+        return 'WIT';
+      default:
+        return 'UTC+$offset';
+    }
+  }
+
   void _calculatePosition() {
     setState(() => _isCalculating = true);
 
@@ -117,6 +144,17 @@ class _FalakCalculatorScreenState extends State<FalakCalculatorScreen> {
       isNegative: _isLngWest,
     );
 
+    // Debug: Print values to verify
+    debugPrint('=== FALAK CALCULATION DEBUG ===' );
+    debugPrint('Latitude: $latitude (${_isLatSouth ? "S" : "N"})');
+    debugPrint('Longitude: $longitude (${_isLngWest ? "W" : "E"})');
+    debugPrint('DMS Lat: $_latDegrees° $_latMinutes\' $_latSeconds"');
+    debugPrint('DMS Lng: $_lngDegrees° $_lngMinutes\' $_lngSeconds"');
+
+    // Detect timezone based on longitude
+    final timezoneOffset = _detectTimezone(longitude.abs());
+    debugPrint('Detected timezone: ${_getTimezoneLabel(timezoneOffset)} (UTC+$timezoneOffset)');
+
     // Combine date and time
     final dateTime = DateTime(
       _selectedDate.year,
@@ -126,13 +164,17 @@ class _FalakCalculatorScreenState extends State<FalakCalculatorScreen> {
       _selectedTime.minute,
     );
 
-    // Calculate Falak data
+    // Calculate Falak data with detected timezone
     final results = FalakService.calculateFalakData(
       latitude: latitude,
       longitude: longitude,
       dateTime: dateTime,
-      timezoneOffset: 7, // WIB (UTC+7)
+      timezoneOffset: timezoneOffset.toDouble(),
     );
+
+    debugPrint('Qibla Direction: ${results['qiblaDirection']}°');
+    debugPrint('Sun Azimuth: ${results['sunAzimuth']}°');
+    debugPrint('================================');
 
     setState(() {
       _results = results;

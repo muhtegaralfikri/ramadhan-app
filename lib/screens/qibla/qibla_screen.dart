@@ -82,12 +82,41 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
         _isLoading = false;
       });
 
-      // Start listening to compass
+          // Start listening to compass
       if (_hasCompass) {
         _compassSubscription = FlutterCompass.events?.listen((event) {
           if (mounted) {
+            // Apply smoothing (Low Pass Filter) to reduce jitter
+            // New heading contributes 10%, old heading contributes 90%
+            double newHeading = event.heading ?? 0.0;
+
+            // Initialize heading on first event
+            if (_currentHeading == null) {
+              setState(() {
+                _currentHeading = newHeading;
+              });
+              return;
+            }
+
+            // Handle the wrap-around case (359 -> 0) correctly
+            double delta = newHeading - _currentHeading!;
+            if (delta > 180) {
+              delta -= 360;
+            } else if (delta < -180) {
+              delta += 360;
+            }
+
+            double smoothedHeading = (_currentHeading! + delta * 0.1);
+
+            // Normalize to 0-360
+            if (smoothedHeading >= 360) {
+              smoothedHeading -= 360;
+            } else if (smoothedHeading < 0) {
+              smoothedHeading += 360;
+            }
+
             setState(() {
-              _currentHeading = event.heading;
+              _currentHeading = smoothedHeading;
             });
           }
         });
@@ -387,6 +416,13 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
     final rotationAngle = -(heading * math.pi / 180);
     final qiblaIndicatorAngle = ((qiblaAngle - heading) * math.pi / 180);
 
+    // Debug: Log compass values
+    debugPrint('=== COMPASS DEBUG ===');
+    debugPrint('Qibla Angle: $qiblaAngle°');
+    debugPrint('Current Heading: $heading°');
+    debugPrint('Qibla Indicator Angle: ${(qiblaAngle - heading)}° from top');
+    debugPrint('=====================');
+
     return Container(
       width: 280,
       height: 280,
@@ -422,7 +458,15 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
               painter: _CompassPainter(),
             ),
           ),
-          // Qibla Indicator (fixed position relative to Qibla)
+          // Qibla Direction Arrow (using CustomPaint for precision)
+          CustomPaint(
+            size: const Size(260, 260),
+            painter: _QiblaArrowPainter(
+              qiblaAngle: qiblaAngle,
+              heading: heading,
+            ),
+          ),
+          // Qibla Mosque Icon at the edge
           Transform.rotate(
             angle: qiblaIndicatorAngle,
             child: Container(
@@ -430,62 +474,40 @@ class _QiblaScreenState extends State<QiblaScreen> with SingleTickerProviderStat
               height: 260,
               alignment: Alignment.topCenter,
               child: Container(
-                margin: const EdgeInsets.only(top: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE65100), Color(0xFFFF9800)],
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFE65100).withValues(alpha: 0.5),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.mosque_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    Container(
-                      width: 3,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            const Color(0xFFE65100),
-                            const Color(0xFFE65100).withValues(alpha: 0),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE65100), Color(0xFFFF9800)],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFE65100).withValues(alpha: 0.5),
+                      blurRadius: 8,
                     ),
                   ],
+                ),
+                child: const Icon(
+                  Icons.mosque_rounded,
+                  color: Colors.white,
+                  size: 16,
                 ),
               ),
             ),
           ),
           // Center dot
           Container(
-            width: 16,
-            height: 16,
+            width: 14,
+            height: 14,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: const Color(0xFFE65100),
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: Colors.white, width: 2),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFFE65100).withValues(alpha: 0.5),
-                  blurRadius: 8,
+                  blurRadius: 6,
                 ),
               ],
             ),
@@ -633,6 +655,69 @@ class _QiblaPatternPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+// Qibla Arrow Painter - draws precise arrow from center to Qibla direction
+class _QiblaArrowPainter extends CustomPainter {
+  final double qiblaAngle;
+  final double heading;
+
+  _QiblaArrowPainter({
+    required this.qiblaAngle,
+    required this.heading,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 10;
+    
+    // Calculate the angle for the Qibla arrow
+    // Subtract 90 degrees because 0° in canvas is to the right, but 0° in compass is up
+    final arrowAngle = ((qiblaAngle - heading) - 90) * math.pi / 180;
+    
+    // Arrow properties
+    final arrowLength = radius - 35; // Leave space for the mosque icon
+    final arrowWidth = 3.0;
+    
+    // Calculate end point
+    final endX = center.dx + arrowLength * math.cos(arrowAngle);
+    final endY = center.dy + arrowLength * math.sin(arrowAngle);
+    
+    // Draw the arrow line
+    final linePaint = Paint()
+      ..color = const Color(0xFFE65100)
+      ..strokeWidth = arrowWidth
+      ..strokeCap = StrokeCap.round;
+    
+    canvas.drawLine(center, Offset(endX, endY), linePaint);
+    
+    // Draw arrow head
+    final arrowHeadLength = 12.0;
+    final arrowHeadAngle = 0.5; // radians
+    
+    final arrowX1 = endX - arrowHeadLength * math.cos(arrowAngle - arrowHeadAngle);
+    final arrowY1 = endY - arrowHeadLength * math.sin(arrowAngle - arrowHeadAngle);
+    final arrowX2 = endX - arrowHeadLength * math.cos(arrowAngle + arrowHeadAngle);
+    final arrowY2 = endY - arrowHeadLength * math.sin(arrowAngle + arrowHeadAngle);
+    
+    final arrowPath = Path()
+      ..moveTo(endX, endY)
+      ..lineTo(arrowX1, arrowY1)
+      ..lineTo(arrowX2, arrowY2)
+      ..close();
+    
+    final arrowPaint = Paint()
+      ..color = const Color(0xFFE65100)
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawPath(arrowPath, arrowPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _QiblaArrowPainter oldDelegate) {
+    return oldDelegate.qiblaAngle != qiblaAngle || oldDelegate.heading != heading;
+  }
+}
+
 class _CompassPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -679,7 +764,7 @@ class _CompassPainter extends CustomPainter {
       );
     }
 
-    // Draw tick marks
+    // Draw tick marks with degree labels
     for (var i = 0; i < 360; i += 15) {
       final angle = (i - 90) * math.pi / 180;
       final isCardinal = i % 90 == 0;
@@ -700,6 +785,25 @@ class _CompassPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round;
 
         canvas.drawLine(Offset(startX, startY), Offset(endX, endY), tickPaint);
+      }
+      
+      // Draw degree numbers at 45° intervals (except cardinals)
+      if (i % 45 == 0 && i % 90 != 0) {
+        final labelX = center.dx + (radius - 40) * math.cos(angle);
+        final labelY = center.dy + (radius - 40) * math.sin(angle);
+        
+        textPainter.text = TextSpan(
+          text: '$i°',
+          style: TextStyle(
+            color: Colors.grey.shade500,
+            fontSize: 10,
+          ),
+        );
+        textPainter.layout();
+        textPainter.paint(
+          canvas,
+          Offset(labelX - textPainter.width / 2, labelY - textPainter.height / 2),
+        );
       }
     }
   }
