@@ -115,16 +115,16 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
       String? subuhTime;
       for (final p in prayers) {
         if (p['name'] == 'Subuh') {
-          subuhTime = p['time'] as String?;
+          subuhTime = p['time'];
           break;
         }
       }
-      
+
       // Find Maghrib time for Iftar reminder
       String? maghribTime;
       for (final p in prayers) {
         if (p['name'] == 'Maghrib') {
-          maghribTime = p['time'] as String?;
+          maghribTime = p['time'];
           break;
         }
       }
@@ -158,9 +158,11 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
       // Schedule prayer reminders for all 5 prayers
       if (_prayerEnabled) {
         for (final prayer in prayers) {
-          final name = prayer['name'] as String?;
-          final time = prayer['time'] as String?;
-          if (name != null && time != null && name != 'Imsak' && name != 'Terbit') {
+          final name = prayer['name'];
+          final time = prayer['time'];
+
+          // Ensure name and time are not null before using them
+          if (name != null && name != 'Imsak' && name != 'Terbit' && time != null) {
             final parts = time.split(':');
             final prayerDateTime = DateTime(
               now.year, now.month, now.day,
@@ -471,7 +473,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
               Switch(
                 value: enabled,
                 onChanged: onToggle,
-                activeColor: iconColor,
+                activeThumbColor: iconColor,
               ),
             ],
           ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../constants/app_colors.dart';
-import '../../constants/app_dimensions.dart';
-import '../../theme/app_theme.dart';
 
 class ProfilMasjidScreen extends StatelessWidget {
   const ProfilMasjidScreen({super.key});

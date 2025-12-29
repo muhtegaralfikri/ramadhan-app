@@ -531,19 +531,23 @@ class _KajianScreenState extends State<KajianScreen> {
                         }
                         if (mounted) {
                           _loadData();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Kajian berhasil disimpan'), 
-                              backgroundColor: Color(0xFF7B1FA2),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Kajian berhasil disimpan'),
+                                backgroundColor: Color(0xFF7B1FA2),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         }
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Gagal: $e'), backgroundColor: AppColors.error),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Gagal: $e'), backgroundColor: AppColors.error),
+                            );
+                          }
                         }
                       }
                     },

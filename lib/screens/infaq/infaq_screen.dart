@@ -477,18 +477,15 @@ class _InfaqScreenState extends State<InfaqScreen> {
                 message: messageController.text.trim().isEmpty ? null : messageController.text.trim(),
                 createdAt: DateTime.now(),
               );
-              
+
               try {
                 await _infaqService.addInfaq(infaq);
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.pop(context);
                   _loadData();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Infaq berhasil dicatat'), backgroundColor: Color(0xFFB8962F)),
-                  );
                 }
               } catch (e) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Gagal: $e'), backgroundColor: AppColors.error),
                   );
@@ -560,15 +557,15 @@ class _InfaqScreenState extends State<InfaqScreen> {
               
               try {
                 await _infaqService.setTarget(infaqTarget);
-                if (mounted) {
-                  Navigator.pop(context);
-                  _loadData();
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Target berhasil diset'), backgroundColor: Color(0xFFB8962F)),
                   );
+                  Navigator.pop(context);
+                  _loadData();
                 }
               } catch (e) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Gagal: $e'), backgroundColor: AppColors.error),
                   );

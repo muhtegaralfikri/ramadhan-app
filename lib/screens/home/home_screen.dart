@@ -4,7 +4,6 @@ import 'dart:ui';
 import '../../constants/app_colors.dart';
 import '../../constants/app_dimensions.dart';
 import '../../constants/app_text_styles.dart';
-import '../../theme/app_theme.dart';
 import '../zakat/zakat_list_screen.dart';
 import '../auth/login_screen.dart';
 import '../jadwal/jadwal_screen.dart';
@@ -58,8 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // Takjil state
   List<TakjilDonor> _todayTakjilDonors = [];
   List<TakjilDonor> _tomorrowTakjilDonors = [];
-  int _currentRamadanDay = 0;
-  
+
   // Animation controllers
   late AnimationController _pulseController;
 
@@ -185,10 +183,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final todayDonors = await _takjilService.getTodayDonors(displayDay);
       final tomorrowDay = displayDay < 30 ? displayDay + 1 : 1;
       final tomorrowDonors = await _takjilService.getTodayDonors(tomorrowDay);
-      
+
       if (mounted) {
         setState(() {
-          _currentRamadanDay = displayDay;
           _todayTakjilDonors = todayDonors;
           _tomorrowTakjilDonors = tomorrowDonors;
         });
@@ -914,119 +911,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
         ],
       ),
-    );
-  }
-
-  Widget _buildWideFeatureCard({
-    required _FeatureItem feature,
-    required int delay,
-  }) {
-    return GestureDetector(
-      onTap: feature.onTap,
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: feature.gradient,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: feature.gradient.first.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Background circles
-            Positioned(
-              top: -30,
-              right: -30,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.white.withValues(alpha: 0.1),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -40,
-              left: -20,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-            // Content - horizontal layout
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      feature.icon,
-                      color: AppColors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          feature.title,
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          feature.subtitle,
-                          style: TextStyle(
-                            color: AppColors.white.withValues(alpha: 0.85),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColors.white,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ).animate().fadeIn(delay: delay.ms).slideX(begin: 0.1),
     );
   }
 

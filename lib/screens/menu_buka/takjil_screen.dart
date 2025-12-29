@@ -479,7 +479,7 @@ class _TakjilScreenState extends State<TakjilScreen> {
                   border: Border.all(color: Colors.grey[200]!),
                 ),
                 child: DropdownButtonFormField<int>(
-                  value: selectedDay,
+                  initialValue: selectedDay,
                   decoration: const InputDecoration(
                     labelText: 'Pilih Hari Ramadan',
                     border: InputBorder.none,
@@ -559,23 +559,27 @@ class _TakjilScreenState extends State<TakjilScreen> {
                       await _takjilService.addDonor(donor);
                       if (mounted) {
                         _loadData();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Alhamdulillah, donatur berhasil ditambahkan'),
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Alhamdulillah, donatur berhasil ditambahkan'),
                             backgroundColor: const Color(0xFF5E35B1),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         );
                       }
-                    } catch (e) {
+                    }
+                  } catch (e) {
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Gagal menambah data: $e'),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Gagal menambah data: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
                       }
                     }
                   },
@@ -674,9 +678,9 @@ class _TakjilScreenState extends State<TakjilScreen> {
                       icon: const Icon(Icons.delete_outline, color: AppColors.error),
                       onPressed: () async {
                         await _takjilService.deleteDonor(donor.id);
-                        if (mounted) {
-                          Navigator.pop(context);
+                        if (context.mounted) {
                           _loadData();
+                          Navigator.pop(context);
                         }
                       },
                     )

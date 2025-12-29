@@ -7,7 +7,6 @@ import '../../services/zakat_service.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_dimensions.dart';
 import '../../constants/app_text_styles.dart';
-import '../../theme/app_theme.dart';
 import 'zakat_screen.dart';
 
 class ZakatListScreen extends StatefulWidget {
@@ -500,28 +499,6 @@ class _ZakatListScreenState extends State<ZakatListScreen> {
         const SizedBox(width: AppDimensions.spacingS),
         Text(label, style: AppTextStyles.labelSmall),
       ],
-    );
-  }
-
-  Widget _buildSummaryCard(String label, double amount, Color color) {
-    return Container(
-      padding: AppPadding.allM,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: AppRadius.allM,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _currencyFormatter.format(amount),
-            style: AppTextStyles.titleMedium.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

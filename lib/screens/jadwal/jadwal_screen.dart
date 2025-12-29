@@ -3,8 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
-import '../../constants/app_dimensions.dart';
-import '../../theme/app_theme.dart';
 import '../../services/location_service.dart';
 import '../../services/prayer_times_service.dart';
 

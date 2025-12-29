@@ -462,7 +462,7 @@ class _TarawihScreenState extends State<TarawihScreen> {
                       border: Border.all(color: Colors.grey[200]!),
                     ),
                     child: DropdownButtonFormField<int>(
-                      value: selectedDay,
+                      initialValue: selectedDay,
                       decoration: const InputDecoration(
                         labelText: 'Malam ke-',
                         border: InputBorder.none,
@@ -506,7 +506,7 @@ class _TarawihScreenState extends State<TarawihScreen> {
                     border: Border.all(color: Colors.grey[200]!),
                   ),
                   child: DropdownButtonFormField<int>(
-                    value: rakaat,
+                    initialValue: rakaat,
                     decoration: const InputDecoration(
                       labelText: 'Jumlah Rakaat',
                       border: InputBorder.none,
@@ -556,19 +556,23 @@ class _TarawihScreenState extends State<TarawihScreen> {
                         await _tarawihService.upsertSchedule(newSchedule);
                         if (mounted) {
                           _loadData();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Jadwal berhasil disimpan'), 
-                              backgroundColor: Color(0xFF00695C),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Jadwal berhasil disimpan'),
+                                backgroundColor: Color(0xFF00695C),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         }
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: AppColors.error),
-                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: AppColors.error),
+                            );
+                          }
                         }
                       }
                     },
